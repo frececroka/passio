@@ -1,0 +1,11 @@
+{
+  "name": "passio",
+  "version": "0.0.0",
+  "description": "A client-side password manager.",
+  "main": "dist/index.html",
+  "author": "Lorenz Gorse",
+  "license": "MIT",
+  "devDependencies": {
+    "grunt": "~0.4.2"
+  }
+}
