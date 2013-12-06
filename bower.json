@@ -14,6 +14,7 @@
     "angular": "~1.2.3",
     "angular-route": "~1.2.3",
     "underscore": "~1.5.2",
-    "cryptojs": "*"
+    "cryptojs": "*",
+    "firebase": "https://cdn.firebase.com/v0/firebase.js"
   }
 }

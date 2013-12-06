@@ -4,10 +4,10 @@
 		'underscore',
 		'angular',
 		'crypto/aes',
-		'passio/localstorage'
+		'passio/firebase'
 	], function (_, angular, aes) {
 
-		var login = angular.module('login', ['localstorage']);
+		var login = angular.module('login', ['firebase']);
 
 		login.controller('LoginController', [
 			'$scope',
@@ -15,42 +15,38 @@
 			'passwordService',
 			function ($scope, $location, passwordService) {
 				$scope.doLogin = function () {
-					if (passwordService.setup($scope.user.name, $scope.user.password)) {
+					passwordService.setup($scope.user.name, $scope.user.password).then(function () {
 						$location.path('/').replace();
-					} else {
+					}, function () {
 						$scope.user.password = '';
 						$scope.loginFailed = true;
-					}
+					});
 				};
 			}
 		]);
 
 		login.factory('passwordService', [
-			'localStorageService',
+			'firebaseService',
 			function (storage) {
 				return {
 					setup: function (username, password) {
+						var _this = this;
+
 						this.username = username;
 						this.password = password;
 
-						var data = storage.retrieve(username);
-						if (!data) {
-							this.data = {
-								nextId: 1,
-								passwords: []
-							};
-							this.updateUpstream();
-						} else {
-							try {
-								data = aes.decrypt(data, this.password);
-							} catch (e) {
-								return false;
+						return storage.retrieve(username).then(function (data) {
+							if (!data) {
+								_this.data = {
+									nextId: 1,
+									passwords: []
+								};
+								_this.updateUpstream();
+							} else {
+								data = aes.decrypt(data, password);
+								_this.data = JSON.parse(data);
 							}
-
-							this.data = JSON.parse(data);
-						}
-
-						return true;
+						});
 					},
 
 					tearDown: function() {

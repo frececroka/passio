@@ -36,6 +36,7 @@ module.exports = function(grunt) {
 					{ src: ['bower_components/jquery/jquery.js'], dest: 'dist/scripts/vendor/jquery.js' },
 					{ src: ['bower_components/angular/angular.js'], dest: 'dist/scripts/vendor/angular.js' },
 					{ src: ['bower_components/angular-route/angular-route.js'], dest: 'dist/scripts/vendor/angular-route.js' },
+					{ src: ['bower_components/firebase/index.js'], dest: 'dist/scripts/vendor/firebase.js' },
 					{ src: ['bower_components/cryptojs/lib/Crypto.js'], dest: 'dist/scripts/vendor/crypto.js' },
 					{ src: ['bower_components/cryptojs/lib/AES.js'], dest: 'dist/scripts/vendor/crypto/aes.js' },
 					{ src: ['bower_components/cryptojs/lib/BlockModes.js'], dest: 'dist/scripts/vendor/crypto/block-modes.js' },

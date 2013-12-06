@@ -5,7 +5,8 @@ requirejs.config({
 		'angular': 'vendor/angular',
 		'angular-route': 'vendor/angular-route',
 		'jquery': 'vendor/jquery',
-		'crypto': 'vendor/crypto'
+		'crypto': 'vendor/crypto',
+		'firebase': 'vendor/firebase'
 	},
 	shim: {
 		'underscore': {
