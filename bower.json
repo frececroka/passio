@@ -14,6 +14,6 @@
     "angular": "~1.2.3",
     "angular-route": "~1.2.3",
     "underscore": "~1.5.2",
-    "cryptojs": "http://crypto-js.googlecode.com/files/CryptoJS%20v3.1.2.zip"
+    "cryptojs": "*"
   }
 }

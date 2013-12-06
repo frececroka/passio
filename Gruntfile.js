@@ -42,7 +42,7 @@ module.exports = function(grunt) {
 					{ src: ['bower_components/cryptojs/lib/PBKDF2.js'], dest: 'dist/scripts/vendor/crypto/pbkdf2.js' },
 					{ src: ['bower_components/cryptojs/lib/HMAC.js'], dest: 'dist/scripts/vendor/crypto/hmac.js' },
 					{ src: ['bower_components/cryptojs/lib/SHA1.js'], dest: 'dist/scripts/vendor/crypto/sha1.js' },
-					{ src: ['bower_components/bootstrap/fonts/glyphicons-halflings-regular.woff'], dest: 'dist/fonts/glyphicons-halflings-regular.woff' },
+					{ src: ['bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff'], dest: 'dist/fonts/glyphicons-halflings-regular.woff' },
 					{
 						src: [
 							'scripts/**',
