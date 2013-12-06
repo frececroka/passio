@@ -33,7 +33,10 @@
 
 					var data = localStorage.getItem(username);
 					if (!data) {
-						this.passwordData = [];
+						this.data = {
+							nextId: 1,
+							passwords: []
+						};
 						this.updateUpstream();
 					} else {
 						try {
@@ -42,18 +45,18 @@
 							return false;
 						}
 
-						this.passwordData = JSON.parse(data);
+						this.data = JSON.parse(data);
 					}
 
 					return true;
 				},
 
 				tearDown: function() {
-					this.passwordData = undefined;
+					this.data = undefined;
 				},
 
 				isInitialized: function () {
-					return !!this.passwordData;
+					return !!this.data;
 				},
 
 				put: function (entry) {
@@ -65,26 +68,36 @@
 					}, entry || {});
 
 					entry = _.pick(entry, 'description', 'url', 'username', 'password');
+					entry.id = this.data.nextId;
+					this.data.nextId += 1;
 
 					entry.created = new Date().getTime();
 					entry.modified = entry.created;
 
-					this.passwordData.push(entry);
+					this.data.passwords.push(entry);
 					this.updateUpstream();
 				},
 
 				get: function () {
 					var clonedData = [];
 
-					_.each(this.passwordData, function (d) {
+					_.each(this.data.passwords, function (d) {
 						clonedData.push(_.clone(d));
 					});
 
 					return clonedData;
 				},
 
+				unput: function (id) {
+					this.data.passwords = _.reject(this.data.passwords, function (p) {
+						return p.id === id;
+					});
+
+					this.updateUpstream();
+				},
+
 				updateUpstream: function () {
-					var data = JSON.stringify(this.passwordData);
+					var data = JSON.stringify(this.data);
 					data = aes.encrypt(data, this.password);
 
 					localStorage.setItem(this.username, data);

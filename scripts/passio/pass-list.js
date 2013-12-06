@@ -25,6 +25,11 @@
 
 					$scope.passwords = passwordService.get();
 				};
+
+				$scope.deletePassword = function (id) {
+					passwordService.unput(id);
+					$scope.passwords = passwordService.get();
+				};
 			}
 		]);
 
