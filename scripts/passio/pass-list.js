@@ -23,6 +23,7 @@
 
 				$scope.addPassword = function () {
 					passwordService.put($scope.newEntry);
+					$scope.newEntry = {};
 
 					$scope.passwords = passwordService.get();
 				};
