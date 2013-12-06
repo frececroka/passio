@@ -1,0 +1,39 @@
+<h1>Your Passwords</h1>
+
+<table class="table password-list">
+	<thead>
+		<tr>
+			<th>Description</th>
+			<th>URL</th>
+			<th>Username</th>
+			<th>Password</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr data-ng-repeat="password in passwords">
+			<td>{{password.description}}</td>
+			<td><a href="{{password.url}}">{{password.url}}</a></td>
+			<td>{{password.username}}</td>
+			<td>
+				<span class="password-wrapper">
+					<span class="password">{{password.password}}</span>
+				</span>
+			</td>
+			<td class="actions">
+			</td>
+		</tr>
+
+		<tr>
+			<td><input type="text" class="form-control" placeholder="Description" data-ng-model="newEntry.description" /></td>
+			<td><input type="text" class="form-control" placeholder="URL" data-ng-model="newEntry.url" /></td>
+			<td><input type="text" class="form-control" placeholder="Username" data-ng-model="newEntry.username" /></td>
+			<td><input type="password" class="form-control" placeholder="Password" data-ng-model="newEntry.password" /></td>
+			<td>
+				<button type="button" class="btn btn-success form-control" data-ng-click="addPassword()">
+					<span class="glyphicon glyphicon-plus"></span>
+				</button>
+			</td>
+		</tr>
+	</tbody>
+</table>

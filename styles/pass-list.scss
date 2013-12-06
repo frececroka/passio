@@ -1,0 +1,22 @@
+.password-list {
+	td {
+		vertical-align: middle!important;
+
+		&.actions {
+			text-align: right;
+		}
+	}
+
+	td:last-child,
+	th:last-child {
+		width: 1px!important;
+	}
+}
+
+.password-wrapper {
+	background-color: #000;
+
+	.password {
+		opacity: 0;
+	}
+}

@@ -1,15 +1,17 @@
 <div class="login-box">
 	<h1>Passio</h1>
 
+	<p data-ng-show="loginFailed">Sorry, please try again</p>
+
 	<p>
 		<label for="username">Username</label>
-		<input type="text" id="username" class="form-control" />
+		<input type="text" id="username" class="form-control" data-ng-model="user.name" />
 	</p>
 
 	<p>
 		<label for="password">Password</label>
-		<input type="password" id="password" class="form-control" />
+		<input type="password" id="password" class="form-control" data-ng-model="user.password" />
 	</p>
 
-	<button type="button" class="btn btn-primary btn-block">Login</button>
+	<button type="button" class="btn btn-primary btn-block" data-ng-click="doLogin()">Login</button>
 </div>
