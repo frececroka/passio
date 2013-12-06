@@ -5,7 +5,7 @@
 		'firebase'
 	], function (angular) {
 
-		var firebase = angular.module('firebase', []);
+		var firebase = angular.module('passio.firebase', []);
 
 		firebase.factory('firebaseService', [
 			'$q',

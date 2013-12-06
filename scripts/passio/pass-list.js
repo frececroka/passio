@@ -3,10 +3,10 @@
 	define([
 		'underscore',
 		'angular',
-		'passio/login'
+		'passio/core'
 	], function (_, angular) {
 
-		var passList = angular.module('passList', []);
+		var passList = angular.module('passio.passList', ['passio.core']);
 
 		passList.controller('PassListController', [
 			'$scope',
