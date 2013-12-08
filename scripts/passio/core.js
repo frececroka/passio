@@ -5,33 +5,54 @@
 		'underscore',
 		'angular',
 		'crypto/aes',
-		'passio/firebase'
-	], function (_, angular, aes) {
+		'crypto/sha256',
+		'passio/rest'
+	], function (_, angular, aes, sha256) {
 
-		var core = angular.module('passio.core', ['passio.firebase']);
+		var core = angular.module('passio.core', ['passio.rest']);
 
 		core.factory('passwordService', [
-			'firebaseService',
-			function (storage) {
+			'restService',
+			'$q',
+			function (storage, $q) {
 				return {
 					setup: function (username, password) {
-						var _this = this;
-
 						this.username = username;
 						this.password = password;
 
-						return storage.retrieve(username).then(function (data) {
-							if (!data) {
-								_this.data = {
-									nextId: 1,
-									passwords: []
-								};
-								_this.updateUpstream();
-							} else {
-								data = aes.decrypt(data, password);
-								_this.data = JSON.parse(data);
+						return $q.all([storage.retrieve(username).then(function (data) {
+							data = aes.decrypt(data, password);
+							this.data = JSON.parse(data);
+						}.bind(this), function () {
+							this.data = {
+								nextId: 1,
+								passwords: []
+							};
+
+							return this.updateUpstream();
+						}.bind(this)), this.createAuthorization()]);
+					},
+
+					createAuthorization: function () {
+						var loops = 80000;
+						var start = new Date().getTime();
+						var promise = $q.defer();
+
+						var run = function () {
+							for (var i = 0; i < 100 && loops; i++) {
+								this.auth = this.auth ? sha256(this.auth) : sha256(this.password);
+								loops -= 1;
 							}
-						});
+
+							if (loops) {
+								setTimeout(run, 0);
+							} else {
+								promise.resolve();
+							}
+						}.bind(this);
+
+						run();
+						return promise.promise;
 					},
 
 					tearDown: function() {
@@ -39,7 +60,7 @@
 					},
 
 					isInitialized: function () {
-						return !!this.data;
+						return this.data && this.auth;
 					},
 
 					put: function (entry) {
@@ -58,7 +79,7 @@
 						entry.modified = entry.created;
 
 						this.data.passwords.push(entry);
-						this.updateUpstream();
+						return this.updateUpstream();
 					},
 
 					get: function () {
@@ -76,14 +97,14 @@
 							return p.id === id;
 						});
 
-						this.updateUpstream();
+						return this.updateUpstream();
 					},
 
 					updateUpstream: function () {
 						var data = JSON.stringify(this.data);
 						data = aes.encrypt(data, this.password);
 
-						storage.store(this.username, data);
+						return storage.store(this.auth, this.username, data);
 					},
 
 					generatePassword: function () {

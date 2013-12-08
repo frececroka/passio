@@ -36,13 +36,13 @@ module.exports = function(grunt) {
 					{ src: ['bower_components/jquery/jquery.js'], dest: 'dist/scripts/vendor/jquery.js' },
 					{ src: ['bower_components/angular/angular.js'], dest: 'dist/scripts/vendor/angular.js' },
 					{ src: ['bower_components/angular-route/angular-route.js'], dest: 'dist/scripts/vendor/angular-route.js' },
-					{ src: ['bower_components/firebase/index.js'], dest: 'dist/scripts/vendor/firebase.js' },
 					{ src: ['bower_components/cryptojs/lib/Crypto.js'], dest: 'dist/scripts/vendor/crypto.js' },
 					{ src: ['bower_components/cryptojs/lib/AES.js'], dest: 'dist/scripts/vendor/crypto/aes.js' },
 					{ src: ['bower_components/cryptojs/lib/BlockModes.js'], dest: 'dist/scripts/vendor/crypto/block-modes.js' },
 					{ src: ['bower_components/cryptojs/lib/PBKDF2.js'], dest: 'dist/scripts/vendor/crypto/pbkdf2.js' },
 					{ src: ['bower_components/cryptojs/lib/HMAC.js'], dest: 'dist/scripts/vendor/crypto/hmac.js' },
 					{ src: ['bower_components/cryptojs/lib/SHA1.js'], dest: 'dist/scripts/vendor/crypto/sha1.js' },
+					{ src: ['bower_components/cryptojs/lib/SHA256.js'], dest: 'dist/scripts/vendor/crypto/sha256.js' },
 					{ src: ['bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff'], dest: 'dist/fonts/glyphicons-halflings-regular.woff' },
 					{
 						src: [

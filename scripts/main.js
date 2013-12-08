@@ -6,7 +6,6 @@ requirejs.config({
 		'angular-route': 'vendor/angular-route',
 		'jquery': 'vendor/jquery',
 		'crypto': 'vendor/crypto',
-		'firebase': 'vendor/firebase'
 	},
 	shim: {
 		'underscore': {
@@ -37,6 +36,10 @@ requirejs.config({
 			deps: ['crypto']
 		},
 		'crypto/sha1': {
+			deps: ['crypto']
+		},
+		'crypto/sha256': {
+			exports: 'Crypto.SHA256',
 			deps: ['crypto']
 		}
 	}

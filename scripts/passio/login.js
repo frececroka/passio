@@ -14,11 +14,14 @@
 			'passwordService',
 			function ($scope, $location, passwordService) {
 				$scope.doLogin = function () {
+					$scope.loginInProgress = true;
 					passwordService.setup($scope.user.name, $scope.user.password).then(function () {
 						$location.path('/').replace();
+						$scope.loginInProgress = false;
 					}, function () {
 						$scope.user.password = '';
 						$scope.loginFailed = true;
+						$scope.loginInProgress = false;
 					});
 				};
 			}
