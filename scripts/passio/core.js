@@ -72,10 +72,6 @@
 						return promise.promise;
 					},
 
-					tearDown: function() {
-						this.data = undefined;
-					},
-
 					/**
 					 * Returns true if passwords are loaded and new passwords can be added. False if not.
 					 *
