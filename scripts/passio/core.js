@@ -107,7 +107,7 @@
 							'description': '',
 							'url': '',
 							'username': '',
-							'password': this.generatePassword(15)
+							'password': this.generatePassword(conf.passwordLength)
 						}, entry || {});
 
 						entry = _.pick(entry, 'id', 'description', 'url', 'username', 'password');

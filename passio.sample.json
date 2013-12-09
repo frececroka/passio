@@ -1,4 +1,5 @@
 {
 	"backendUrl": "https://passio-backend.appspot.com/",
-	"authIterations": 1000
+	"authIterations": 1000,
+	"passwordLength": 15
 }
