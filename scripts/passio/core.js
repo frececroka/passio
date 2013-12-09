@@ -107,7 +107,7 @@
 							'description': '',
 							'url': '',
 							'username': '',
-							'password': this.generatePassword()
+							'password': this.generatePassword(15)
 						}, entry || {});
 
 						entry = _.pick(entry, 'id', 'description', 'url', 'username', 'password');
@@ -178,16 +178,18 @@
 					},
 
 					/**
-					 * Generates a random password consisting of 15 characters chosen from a pool of 66
-					 * characters.
+					 * Generates a random password consisting of characters chosen from a pool of 66
+					 * characters. The generated password will have the length given by `len`.
+					 *
+					 * @param {Integer} len  The length of the generated password.
 					 *
 					 * @return {String}  A random 15-character password.
 					 */
-					generatePassword: function () {
+					generatePassword: function (len) {
 						var characterPool = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_-=.';
 						var password = '';
 
-						while (password.length < 15) {
+						while (password.length < len) {
 							password += characterPool.charAt(Math.round(Math.random() * (characterPool.length - 1)));
 						}
 
