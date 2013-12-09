@@ -17,6 +17,16 @@
 			'$q',
 			function (storage, $q) {
 				return {
+					/**
+					 * Tries to obtain the neccessary information to read and write password entries for the
+					 * given user.
+					 *
+					 * @param {String} username  The username
+					 * @param {String} password  The password
+					 *
+					 * @return {Promise}  A promise which is resolved when all neccessary information are
+					 *                    gathered and which is rejected when the process failed.
+					 */
 					setup: function (username, password) {
 						this.username = username;
 						this.password = password;
@@ -34,6 +44,12 @@
 						}.bind(this)), this.createAuthorization()]);
 					},
 
+					/**
+					 * Creates the authorization neccessary to update the upstream datastore.
+					 *
+					 * @return {Promise}  A promise which is resolved when the authorization token has been
+					 *                    created and written to `this.auth`.
+					 */
 					createAuthorization: function () {
 						var loops = conf.authIterations;
 						var start = new Date().getTime();
@@ -60,10 +76,32 @@
 						this.data = undefined;
 					},
 
+					/**
+					 * Returns true if passwords are loaded and new passwords can be added. False if not.
+					 *
+					 * @return {Boolean}  True if passwords can be read and written. False if not.
+					 */
 					isInitialized: function () {
 						return this.data && this.auth;
 					},
 
+					/**
+					 * Creates a new password entry or updates an existing one. If an ID is given, the
+					 * password with a matching ID is replaced by the given password entry. If no password
+					 * with a matching ID is found, nothing is done. If no ID is given, a new password is
+					 * created.
+					 *
+					 * @param {Object} entry  An object describing the password.
+					 * @param {Integer} [entry.id]  The ID of the password.
+					 * @param {String} [entry.description]  A short description of the password.
+					 * @param {String} [entry.url]  The URL of the page associated with this password.
+					 * @param {String} [entry.username]  The username associated with this password.
+					 * @param {String} [entry.password]  The actual password. If it is empty, a random
+					 *                                   password will be generated.
+					 *
+					 * @return {Promise} A promise which will be resolved if the password was successfully
+					 *                   saved or rejected if not.
+					 */
 					put: function (entry) {
 						entry = _.extend({
 							'description': '',
@@ -95,6 +133,12 @@
 						return this.updateUpstream();
 					},
 
+					/**
+					 * Obtains a list of all currently stored passwords. Changes to this array are not
+					 * persisted.
+					 *
+					 * @return {Array}  An array containing all stored passwords.
+					 */
 					get: function () {
 						var clonedData = [];
 
@@ -105,6 +149,13 @@
 						return clonedData;
 					},
 
+					/**
+					 * Deletes the password with the given ID.
+					 *
+					 * @param  {Integer} id  The ID of the password to delete.
+					 * @return {Promise}  A promise which is resolved when the password has been deleted and
+					 *                    which is rejected when the deletion was not successful.
+					 */
 					unput: function (id) {
 						this.data.passwords = _.reject(this.data.passwords, function (p) {
 							return p.id === id;
@@ -113,6 +164,12 @@
 						return this.updateUpstream();
 					},
 
+					/**
+					 * Updates the upstream datastore with the data from `this.data`.
+					 *
+					 * @return {Promise}  A promise which is resolved when the update was successful and which
+					 *                    is rejected when the update failed.
+					 */
 					updateUpstream: function () {
 						var data = JSON.stringify(this.data);
 						data = aes.encrypt(data, this.password);
@@ -120,6 +177,12 @@
 						return storage.store(this.auth, this.username, data);
 					},
 
+					/**
+					 * Generates a random password consisting of 15 characters chosen from a pool of 66
+					 * characters.
+					 *
+					 * @return {String}  A random 15-character password.
+					 */
 					generatePassword: function () {
 						var characterPool = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_-=.';
 						var password = '';
