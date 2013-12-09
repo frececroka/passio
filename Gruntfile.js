@@ -33,6 +33,7 @@ module.exports = function(grunt) {
 				files: [
 					{ src: ['bower_components/underscore/underscore.js'], dest: 'dist/scripts/vendor/underscore.js' },
 					{ src: ['bower_components/requirejs/require.js'], dest: 'dist/scripts/vendor/require.js' },
+					{ src: ['bower_components/requirejs-text/text.js'], dest: 'dist/scripts/vendor/require/text.js' },
 					{ src: ['bower_components/jquery/jquery.js'], dest: 'dist/scripts/vendor/jquery.js' },
 					{ src: ['bower_components/angular/angular.js'], dest: 'dist/scripts/vendor/angular.js' },
 					{ src: ['bower_components/angular-route/angular-route.js'], dest: 'dist/scripts/vendor/angular-route.js' },
@@ -51,7 +52,8 @@ module.exports = function(grunt) {
 							'index.html'
 						],
 						dest: 'dist/'
-					}
+					},
+					{ src: ['passio.json'], dest: 'dist/scripts/passio.json' }
 				]
 			}
 		},

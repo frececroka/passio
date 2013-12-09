@@ -6,6 +6,7 @@ requirejs.config({
 		'angular-route': 'vendor/angular-route',
 		'jquery': 'vendor/jquery',
 		'crypto': 'vendor/crypto',
+		'text': 'vendor/require/text',
 	},
 	shim: {
 		'underscore': {

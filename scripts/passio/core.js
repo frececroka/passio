@@ -6,8 +6,9 @@
 		'angular',
 		'crypto/aes',
 		'crypto/sha256',
+		'passio/config',
 		'passio/rest'
-	], function (_, angular, aes, sha256) {
+	], function (_, angular, aes, sha256, conf) {
 
 		var core = angular.module('passio.core', ['passio.rest']);
 
@@ -34,7 +35,7 @@
 					},
 
 					createAuthorization: function () {
-						var loops = 80000;
+						var loops = conf.authIterations;
 						var start = new Date().getTime();
 						var promise = $q.defer();
 

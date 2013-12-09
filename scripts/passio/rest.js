@@ -2,8 +2,9 @@
 	'use strict';
 
 	define([
-		'angular'
-	], function (angular) {
+		'angular',
+		'passio/config'
+	], function (angular, conf) {
 
 		var rest = angular.module('passio.rest', []);
 
@@ -14,7 +15,7 @@
 					store: function (auth, key, value) {
 						return $http({
 							method: 'POST',
-							url: 'https://passio-backend.appspot.com/' + key,
+							url: conf.backendUrl + key,
 							data: value,
 							headers: {
 								'Authorization': auth,
@@ -26,7 +27,7 @@
 					retrieve: function (key) {
 						return $http({
 							method: 'GET',
-							url: 'https://passio-backend.appspot.com/' + key,
+							url: conf.backendUrl + key,
 							headers: {
 								'Accept': 'text/plain'
 							}
