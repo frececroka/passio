@@ -72,14 +72,26 @@
 							'password': this.generatePassword()
 						}, entry || {});
 
-						entry = _.pick(entry, 'description', 'url', 'username', 'password');
-						entry.id = this.data.nextId;
-						this.data.nextId += 1;
+						entry = _.pick(entry, 'id', 'description', 'url', 'username', 'password');
 
-						entry.created = new Date().getTime();
-						entry.modified = entry.created;
+						if (!entry.id) {
+							entry.id = this.data.nextId;
+							this.data.nextId += 1;
 
-						this.data.passwords.push(entry);
+							entry.created = entry.modified;
+							this.data.passwords.push(entry);
+						} else {
+							_.each(this.data.passwords, function (p, i, passwords) {
+								if (p.id === entry.id) {
+									// we update the modified time if the password was changed
+									entry.modified = entry.password !== p.password ? new Date().getTime() : p.modified;
+									entry.created = p.created;
+
+									passwords[i] = entry;
+								}
+							});
+						}
+
 						return this.updateUpstream();
 					},
 

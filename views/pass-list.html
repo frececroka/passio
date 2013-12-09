@@ -1,42 +1,64 @@
 <h1>Your Passwords</h1>
 
-<table class="table password-list">
-	<thead>
-		<tr>
-			<th>Description</th>
-			<th>URL</th>
-			<th>Username</th>
-			<th>Password</th>
-			<th></th>
-		</tr>
-	</thead>
-	<tbody>
-		<tr data-ng-repeat="password in passwords">
-			<td>{{password.description}}</td>
-			<td><a href="{{password.url}}">{{password.url}}</a></td>
-			<td>{{password.username}}</td>
-			<td>
-				<span class="password-wrapper">
-					<span class="password">{{password.password}}</span>
-				</span>
-			</td>
-			<td class="actions">
-				<button type="button" class="btn btn-danger" data-ng-click="deletePassword(password.id)">
-					<span class="glyphicon glyphicon-remove"></span>
-				</button>
-			</td>
-		</tr>
+<form data-ng-submit="savePassword()">
+	<table class="table password-list">
+		<thead>
+			<tr>
+				<th>Description</th>
+				<th>URL</th>
+				<th>Username</th>
+				<th>Password</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr data-ng-repeat="password in passwords">
+				<td data-ng-click="edit.id = password.id">
+					<span data-ng-show="password.id !== edit.id">{{password.description}}</span>
+					<input type="text" class="form-control" placeholder="Description" data-ng-model="password.description" data-ng-show="password.id === edit.id" />
+				</td>
+				<td>
+					<span data-ng-show="password.id !== edit.id">
+						<a href="{{password.url}}">{{password.url}}</a>
+					</span>
+					<input type="text" class="form-control" placeholder="URL" data-ng-model="password.url" data-ng-show="password.id === edit.id" />
+				</td>
+				<td>
+					<span data-ng-show="password.id !== edit.id">{{password.username}}</span>
+					<input type="text" class="form-control" placeholder="Username" data-ng-model="password.username" data-ng-show="password.id === edit.id" />
+				</td>
+				<td>
+					<span class="password-wrapper" data-ng-show="password.id !== edit.id">
+						<span class="password">{{password.password}}</span>
+					</span>
+					<input type="password" class="form-control" placeholder="Password" data-ng-model="password.password" data-ng-show="password.id === edit.id" />
+				</td>
+				<td class="actions">
+					<button type="button" class="btn btn-warning" data-ng-click="edit.id = password.id" data-ng-show="password.id !== edit.id">
+						<span class="glyphicon glyphicon-pencil"></span>
+					</button>
+					<button type="button" class="btn btn-success" data-ng-click="savePassword()" data-ng-show="password.id === edit.id">
+						<span class="glyphicon glyphicon-ok"></span>
+					</button>
+					<button type="button" class="btn btn-danger" data-ng-click="deletePassword(password.id)">
+						<span class="glyphicon glyphicon-remove"></span>
+					</button>
+				</td>
+			</tr>
 
-		<tr>
-			<td><input type="text" class="form-control" placeholder="Description" data-ng-model="newEntry.description" /></td>
-			<td><input type="text" class="form-control" placeholder="URL" data-ng-model="newEntry.url" /></td>
-			<td><input type="text" class="form-control" placeholder="Username" data-ng-model="newEntry.username" /></td>
-			<td><input type="password" class="form-control" placeholder="Password" data-ng-model="newEntry.password" /></td>
-			<td>
-				<button type="button" class="btn btn-success form-control" data-ng-click="addPassword()">
-					<span class="glyphicon glyphicon-plus"></span>
-				</button>
-			</td>
-		</tr>
-	</tbody>
-</table>
+			<tr>
+				<td><input type="text" class="form-control" placeholder="Description" data-ng-model="newEntry.description" /></td>
+				<td><input type="text" class="form-control" placeholder="URL" data-ng-model="newEntry.url" /></td>
+				<td><input type="text" class="form-control" placeholder="Username" data-ng-model="newEntry.username" /></td>
+				<td><input type="password" class="form-control" placeholder="Password" data-ng-model="newEntry.password" /></td>
+				<td>
+					<button type="button" class="btn btn-success form-control" data-ng-click="savePassword()">
+						<span class="glyphicon glyphicon-plus"></span>
+					</button>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<button class="hide">Submit</button>
+</form>
