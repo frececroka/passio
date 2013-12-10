@@ -23,7 +23,7 @@
 				$scope.edit = {};
 
 				$scope.savePassword = function (p) {
-					var id, password;
+					var id, password, p;
 
 					id = $scope.edit.id;
 					$scope.edit.id = null;
@@ -38,19 +38,28 @@
 						}
 
 						// update password, as p contains an id.
-						passwordService.put(password);
+						p = passwordService.put(password);
 					} else {
 						// create password, as $scope.newEntry contains no id.
-						passwordService.put($scope.newEntry);
-						$scope.newEntry = {};
+						p = passwordService.put($scope.newEntry);
 					}
 
 					$scope.passwords = passwordService.get();
+
+					p.then(function () {
+						$scope.newEntry = {};
+						$scope.passwords = passwordService.get();
+					}, function () {
+						$scope.error = true;
+					});
 				};
 
 				$scope.deletePassword = function (id) {
-					passwordService.unput(id);
-					$scope.passwords = passwordService.get();
+					passwordService.unput(id).then(function () {
+						$scope.passwords = passwordService.get();
+					}, function () {
+						$scope.error = true;
+					});
 				};
 			}
 		]);

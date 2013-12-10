@@ -1,4 +1,7 @@
 <h1>Your Passwords</h1>
+<div class="alert alert-danger" data-ng-show="error">
+	<strong>Oh snap!</strong> Check you internet connection and try submitting again.
+</div>
 
 <form data-ng-submit="savePassword()">
 	<table class="table password-list">
