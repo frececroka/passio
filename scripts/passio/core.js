@@ -6,16 +6,16 @@
 		'angular',
 		'crypto/aes',
 		'crypto/sha256',
+		'crypto/pbkdf2',
 		'passio/config',
 		'passio/rest'
-	], function (_, angular, aes, sha256, conf) {
+	], function (_, angular, aes, sha256, pbkdf2, conf) {
 
 		var core = angular.module('passio.core', ['passio.rest']);
 
 		core.factory('passwordService', [
 			'restService',
-			'$q',
-			function (storage, $q) {
+			function (storage) {
 				return {
 					/**
 					 * Tries to obtain the neccessary information to read and write password entries for the
@@ -31,7 +31,9 @@
 						this.username = username;
 						this.password = password;
 
-						return $q.all([storage.retrieve(username).then(function (data) {
+						this.createAuthorization();
+
+						return storage.retrieve(username).then(function (data) {
 							data = aes.decrypt(data, password);
 							this.data = JSON.parse(data);
 						}.bind(this), function () {
@@ -41,35 +43,18 @@
 							};
 
 							return this.updateUpstream();
-						}.bind(this)), this.createAuthorization()]);
+						}.bind(this));
 					},
 
 					/**
 					 * Creates the authorization neccessary to update the upstream datastore.
-					 *
-					 * @return {Promise}  A promise which is resolved when the authorization token has been
-					 *                    created and written to `this.auth`.
 					 */
 					createAuthorization: function () {
-						var loops = conf.authIterations;
-						var start = new Date().getTime();
-						var promise = $q.defer();
+						this.auth = pbkdf2(this.password, sha256(this.password), 512, {
+							iterations: conf.authIterations
+						});
 
-						var run = function () {
-							for (var i = 0; i < 100 && loops; i++) {
-								this.auth = this.auth ? sha256(this.auth) : sha256(this.password);
-								loops -= 1;
-							}
-
-							if (loops) {
-								setTimeout(run, 0);
-							} else {
-								promise.resolve();
-							}
-						}.bind(this);
-
-						run();
-						return promise.promise;
+						this.auth = sha256(this.auth);
 					},
 
 					/**

@@ -31,6 +31,7 @@ requirejs.config({
 			deps: ['crypto']
 		},
 		'crypto/pbkdf2': {
+			exports: 'Crypto.PBKDF2',
 			deps: ['crypto', 'crypto/hmac', 'crypto/sha1']
 		},
 		'crypto/hmac': {

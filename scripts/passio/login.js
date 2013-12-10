@@ -15,14 +15,19 @@
 			function ($scope, $location, passwordService) {
 				$scope.doLogin = function () {
 					$scope.loginInProgress = true;
-					passwordService.setup($scope.user.name, $scope.user.password).then(function () {
-						$location.path('/').replace();
-						$scope.loginInProgress = false;
-					}, function () {
-						$scope.user.password = '';
-						$scope.loginFailed = true;
-						$scope.loginInProgress = false;
-					});
+
+					// This timeout allows the button to change its text, as the setup function does heavy synchronus
+					// computation for a few seconds.
+					setTimeout(function () {
+						passwordService.setup($scope.user.name, $scope.user.password).then(function () {
+							$location.path('/').replace();
+							$scope.loginInProgress = false;
+						}, function () {
+							$scope.user.password = '';
+							$scope.loginFailed = true;
+							$scope.loginInProgress = false;
+						});
+					}, 10);
 				};
 			}
 		]);
