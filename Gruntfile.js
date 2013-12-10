@@ -58,19 +58,14 @@ module.exports = function(grunt) {
 			}
 		},
 		watch: {
-			copy: {
+			dev: {
 				files: [
 					'scripts/**',
+					'styles/**',
 					'views/**',
 					'index.html'
 				],
 				tasks: ['dev']
-			},
-			styles: {
-				files: [
-					'styles/**'
-				],
-				tasks: ['sass:dev']
 			}
 		}
 	});
