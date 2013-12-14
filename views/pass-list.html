@@ -1,0 +1,175 @@
+<div class="clearfix password-list-header">
+	<h1>Your Passwords</h1>
+
+	<div class="searchbox">
+		<input type="search" class="form-control" placeholder="Search" ng-model="searchQuery" />
+	</div>
+</div>
+
+<div class="alert alert-danger" data-ng-show="error">
+	<strong>Oh snap!</strong> Check you internet connection and try submitting again.
+</div>
+
+<form data-ng-submit="savePassword()">
+	<div class="visible-lg"><table class="table password-list">
+		<thead>
+			<tr>
+				<th>Description</th>
+				<th>URL</th>
+				<th>Username</th>
+				<th>Password</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr data-ng-repeat="password in passwords"
+				data-ng-class="{ volatile: password.volatile, deleted: password.deleted }">
+				<td data-ng-click="edit.id = password.id">
+					<span data-ng-show="password.id !== edit.id" matched-text match="password.$description" text="password.description"></span>
+					<input type="text" class="form-control" placeholder="Description" data-ng-model="password.description" data-ng-show="password.id === edit.id" />
+				</td>
+				<td>
+					<span data-ng-show="password.id !== edit.id">
+						<a href="{{password.url}}" matched-text match="password.$url" text="password.url"></a>
+					</span>
+					<input type="text" class="form-control" placeholder="URL" data-ng-model="password.url" data-ng-show="password.id === edit.id" />
+				</td>
+				<td>
+					<span data-ng-show="password.id !== edit.id" matched-text match="password.$username" text="password.username"></span>
+					<input type="text" class="form-control" placeholder="Username" data-ng-model="password.username" data-ng-show="password.id === edit.id" />
+				</td>
+				<td>
+					<span class="password-wrapper" data-ng-show="password.id !== edit.id">
+						<span class="password">{{password.password}}</span>
+					</span>
+					<input type="password" class="form-control" placeholder="Password" data-ng-model="password.password" data-ng-show="password.id === edit.id" />
+				</td>
+				<td class="actions">
+					<button type="button" class="btn btn-warning" data-ng-click="edit.id = password.id" data-ng-show="password.id !== edit.id">
+						<span class="glyphicon glyphicon-pencil"></span>
+					</button>
+					<button type="button" class="btn btn-success" data-ng-click="savePassword()" data-ng-show="password.id === edit.id">
+						<span class="glyphicon glyphicon-ok"></span>
+					</button>
+					<button type="button" class="btn btn-danger" data-ng-click="deletePassword(password.id)">
+						<span class="glyphicon glyphicon-remove"></span>
+					</button>
+				</td>
+			</tr>
+
+			<tr>
+				<td><input type="text" class="form-control" placeholder="Description" data-ng-model="newEntry.description" /></td>
+				<td><input type="text" class="form-control" placeholder="URL" data-ng-model="newEntry.url" /></td>
+				<td><input type="text" class="form-control" placeholder="Username" data-ng-model="newEntry.username" /></td>
+				<td><input type="password" class="form-control" placeholder="Password" data-ng-model="newEntry.password" /></td>
+				<td>
+					<button type="button" class="btn btn-success form-control" data-ng-click="savePassword()">
+						<span class="glyphicon glyphicon-plus"></span>
+					</button>
+				</td>
+			</tr>
+		</tbody>
+	</table></div>
+
+	<div class="hidden-lg">
+		<div class="panel panel-default password-box" data-ng-repeat="password in passwords">
+			<div class="panel-heading"><a href="{{ password.url }}">{{ password.description }}</a></div>
+			<div class="panel-body">
+				<div class="row">
+					<div class="col-sm-4 text">
+						<span data-ng-show="password.id !== edit.id">{{password.username}}</span>
+
+						<input type="text"
+							class="form-control"
+							placeholder="Username"
+							data-ng-model="password.username"
+							data-ng-show="password.id === edit.id" />
+					</div>
+
+					<div class="col-sm-4 text">
+						<span class="password-wrapper" data-ng-show="password.id !== edit.id">
+							<span class="password">{{password.password}}</span>
+						</span>
+
+						<input type="password"
+							class="form-control"
+							placeholder="Password"
+							data-ng-model="password.password"
+							data-ng-show="password.id === edit.id" />
+					</div>
+
+					<div class="col-xs-6 col-sm-2 action">
+						<button type="button"
+							class="btn btn-warning"
+							data-ng-click="edit.id = password.id"
+							data-ng-show="password.id !== edit.id">
+
+							<span class="glyphicon glyphicon-pencil"></span>
+						</button>
+
+						<button type="button"
+							class="btn btn-success"
+							data-ng-click="savePassword()"
+							data-ng-show="password.id === edit.id">
+
+							<span class="glyphicon glyphicon-ok"></span>
+						</button>
+					</div>
+
+					<div class="col-xs-6 col-sm-2 action">
+						<button type="button"
+							class="btn btn-danger"
+							data-ng-click="deletePassword(password.id)">
+
+							<span class="glyphicon glyphicon-remove"></span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="panel panel-default password-box">
+			<div class="panel-heading">New password</div>
+			<div class="panel-body">
+				<input type="text" class="form-control" placeholder="Description" data-ng-model="newEntry.description" />
+				<input type="text" class="form-control" placeholder="URL" data-ng-model="newEntry.url" />
+				<input type="text" class="form-control" placeholder="Username" data-ng-model="newEntry.username" />
+				<input type="password" class="form-control" placeholder="Password" data-ng-model="newEntry.password" />
+
+				<button type="button" class="btn btn-success form-control" data-ng-click="savePassword()">
+					<span class="glyphicon glyphicon-plus"></span> Add password
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<button class="hide">Submit</button>
+</form>
+
+<div class="clearfix password-list-footer">
+	<button class="show-hide-button btn btn-primary"
+		data-ng-class="{ active: showRawData }"
+		data-ng-click="showRawData = !showRawData">
+		<span data-ng-hide="showRawData">Show</span>
+		<span data-ng-hide="!showRawData">Hide</span>
+		raw data
+	</button>
+
+	<div class="undo-redo-buttons">
+		<button class="btn btn-warning"
+			type="button"
+			data-ng-click="undo()"
+			data-ng-disabled="!canUndo()">
+			<span class="glyphicon glyphicon-step-backward"></span> Undo
+		</button>
+
+		<button class="btn btn-warning"
+			type="button"
+			data-ng-click="redo()"
+			data-ng-disabled="!canRedo()">
+			Redo <span class="glyphicon glyphicon-step-forward"></span>
+		</button>
+	</div>
+</div>
+
+<p class="code" data-ng-show="showRawData">{{ rawData }}</p>

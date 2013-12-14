@@ -1,0 +1,5 @@
+{
+	"backendUrl": "https://passio-backend.appspot.com/",
+	"pbkdf2Iterations": 1000,
+	"passwordLength": 15
+}

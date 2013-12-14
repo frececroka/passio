@@ -1,0 +1,19 @@
+<form class="login-box" data-ng-submit="doLogin()">
+	<h1>Passio</h1>
+
+	<div class="alert alert-danger" data-ng-show="loginFailed"><strong>Oh snap!</strong> That didn't work. Please try again.</div>
+
+	<p>
+		<label for="username">Username</label>
+		<input type="text" id="username" class="form-control" data-ng-model="user.name" autofocus />
+	</p>
+
+	<p>
+		<label for="password">Password</label>
+		<input type="password" id="password" class="form-control" data-ng-model="user.password" />
+	</p>
+
+	<button type="submit" class="btn btn-primary btn-block" data-ng-show="!loginInProgress">Login</button>
+
+	<button type="button" class="btn btn-primary btn-block" disabled="disabled" data-ng-show="loginInProgress">Hang tight...</button>
+</form>

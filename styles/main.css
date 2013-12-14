@@ -1,0 +1,91 @@
+.login-box {
+  width: 100%;
+  max-width: 300px;
+  margin: auto; }
+
+.password-list-header {
+  margin-bottom: 20px; }
+  .password-list-header h1 {
+    float: left;
+    margin-bottom: 0; }
+    @media (max-width: 560px) {
+      .password-list-header h1 {
+        float: none; } }
+  .password-list-header .searchbox {
+    float: right;
+    margin-top: 23px; }
+    @media (max-width: 560px) {
+      .password-list-header .searchbox {
+        float: none;
+        width: 100%; } }
+
+.password-list td {
+  vertical-align: middle !important; }
+  .password-list td.actions {
+    text-align: center;
+    min-width: 101px; }
+.password-list td:last-child,
+.password-list th:last-child {
+  width: 1px !important; }
+.password-list tr.deleted, .password-list tr.volatile {
+  color: #999; }
+  .password-list tr.deleted a, .password-list tr.volatile a {
+    color: #999; }
+  .password-list tr.deleted td .password-wrapper, .password-list tr.volatile td .password-wrapper {
+    background-color: #999; }
+.password-list tr.deleted {
+  text-decoration: line-through; }
+
+.password-list-footer .show-hide-button {
+  float: left; }
+  @media (max-width: 360px) {
+    .password-list-footer .show-hide-button {
+      float: none;
+      width: 100%;
+      margin-bottom: 10px; } }
+.password-list-footer .undo-redo-buttons {
+  float: right; }
+  @media (max-width: 360px) {
+    .password-list-footer .undo-redo-buttons {
+      float: none; }
+      .password-list-footer .undo-redo-buttons button {
+        width: 48%; }
+        .password-list-footer .undo-redo-buttons button:first-child {
+          float: left; }
+        .password-list-footer .undo-redo-buttons button:last-child {
+          float: right; } }
+
+.password-wrapper {
+  background-color: #000; }
+  .password-wrapper .password {
+    opacity: 0; }
+
+.password-box .text {
+  line-height: 34px;
+  overflow: hidden;
+  text-overflow: ellipsis; }
+.password-box .action button {
+  width: 100%; }
+.password-box .row > div {
+  margin-top: 10px;
+  margin-bottom: 10px; }
+.password-box input,
+.password-box button {
+  margin: 5px 0; }
+
+.search-match {
+  color: #D00; }
+
+p.code {
+  background-color: #DDD;
+  color: #333;
+  font-family: monospace;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  word-wrap: break-word; }
+
+body {
+  padding: 10px; }
+
+/*# sourceMappingURL=main.css.map */

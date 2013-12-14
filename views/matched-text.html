@@ -1,0 +1,5 @@
+<!-- highlight matches if they are available -->
+<span ng-repeat="slice in match" ng-show="match"><strong ng-show="slice.match" class="search-match">{{ slice.slice }}</strong><span ng-hide="slice.match">{{ slice.slice }}</span></span>
+
+<!-- just show the plain text when no matches are available -->
+<span ng-hide="match">{{ text }}</span>
