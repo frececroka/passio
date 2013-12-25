@@ -1,4 +1,4 @@
-<div class="login-box">
+<form class="login-box" data-ng-submit="doLogin()">
 	<h1>Passio</h1>
 
 	<div class="alert alert-danger" data-ng-show="loginFailed"><strong>Oh snap!</strong> That didn't work. Please try again.</div>
@@ -13,7 +13,7 @@
 		<input type="password" id="password" class="form-control" data-ng-model="user.password" />
 	</p>
 
-	<button type="button" class="btn btn-primary btn-block" data-ng-click="doLogin()" data-ng-show="!loginInProgress">Login</button>
+	<button type="submit" class="btn btn-primary btn-block" data-ng-click="doLogin()" data-ng-show="!loginInProgress">Login</button>
 
 	<button type="button" class="btn btn-primary btn-block" disabled="disabled" data-ng-show="loginInProgress">Hang tight...</button>
-</div>
+</form>
