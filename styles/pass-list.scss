@@ -14,6 +14,7 @@
 	}
 
 	tr {
+		&.deleted,
 		&.volatile {
 			color: #999;
 
@@ -26,6 +27,10 @@
 					background-color: #999;
 				}
 			}
+		}
+
+		&.deleted {
+			text-decoration: line-through;
 		}
 	}
 }

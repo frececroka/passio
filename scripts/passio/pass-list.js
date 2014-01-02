@@ -55,6 +55,11 @@
 				};
 
 				$scope.deletePassword = function (id) {
+					var password = _.find($scope.passwords, function (p) {
+						return p.id === id;
+					});
+
+					password.deleted = true;
 					passwordService.unput(id).then(function () {
 						$scope.passwords = passwordService.get();
 						$scope.rawData = passwordService.getRaw();
