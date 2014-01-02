@@ -12,6 +12,22 @@
 	th:last-child {
 		width: 1px!important;
 	}
+
+	tr {
+		&.volatile {
+			color: #999;
+
+			a {
+				color: #999;
+			}
+
+			td {
+				.password-wrapper {
+					background-color: #999;
+				}
+			}
+		}
+	}
 }
 
 .password-wrapper {

@@ -23,8 +23,8 @@
 				$scope.rawData = passwordService.getRaw();
 				$scope.edit = {};
 
-				$scope.savePassword = function (p) {
-					var id, password, p;
+				$scope.savePassword = function () {
+					var id, password;
 
 					id = $scope.edit.id;
 					$scope.edit.id = null;
@@ -38,16 +38,14 @@
 							return;
 						}
 
-						// update password, as p contains an id.
-						p = passwordService.put(password);
+						// Indicate that this password has not been saved yet. This property will be overwritten
+						// as soon as the passwords have been saved.
+						password.volatile = true;
 					} else {
-						// create password, as $scope.newEntry contains no id.
-						p = passwordService.put($scope.newEntry);
+						password = $scope.newEntry;
 					}
 
-					$scope.passwords = passwordService.get();
-
-					p.then(function () {
+					passwordService.put(password).then(function () {
 						$scope.newEntry = {};
 						$scope.passwords = passwordService.get();
 						$scope.rawData = passwordService.getRaw();

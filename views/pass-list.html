@@ -15,7 +15,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			<tr data-ng-repeat="password in passwords">
+			<tr data-ng-repeat="password in passwords" data-ng-class="{ volatile: password.volatile }">
 				<td data-ng-click="edit.id = password.id">
 					<span data-ng-show="password.id !== edit.id">{{password.description}}</span>
 					<input type="text" class="form-control" placeholder="Description" data-ng-model="password.description" data-ng-show="password.id === edit.id" />
