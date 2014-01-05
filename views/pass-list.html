@@ -65,3 +65,13 @@
 
 	<button class="hide">Submit</button>
 </form>
+
+<button class="btn btn-primary"
+	data-ng-class="{ active: showRawData }"
+	data-ng-click="showRawData = !showRawData">
+	<span data-ng-hide="showRawData">Show</span>
+	<span data-ng-hide="!showRawData">Hide</span>
+	raw data
+</button>
+
+<p class="code" data-ng-show="showRawData">{{ rawData }}</p>

@@ -131,6 +131,15 @@
 					},
 
 					/**
+					 * Returns the raw data as a JSON object
+					 *
+					 * @return {Object} The raw data.
+					 */
+					getRaw: function () {
+						return JSON.stringify(this.data);
+					},
+
+					/**
 					 * Deletes the password with the given ID.
 					 *
 					 * @param  {Integer} id  The ID of the password to delete.

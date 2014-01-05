@@ -20,6 +20,7 @@
 				}
 
 				$scope.passwords = passwordService.get();
+				$scope.rawData = passwordService.getRaw();
 				$scope.edit = {};
 
 				$scope.savePassword = function (p) {
@@ -49,6 +50,7 @@
 					p.then(function () {
 						$scope.newEntry = {};
 						$scope.passwords = passwordService.get();
+						$scope.rawData = passwordService.getRaw();
 					}, function () {
 						$scope.error = true;
 					});
@@ -57,6 +59,7 @@
 				$scope.deletePassword = function (id) {
 					passwordService.unput(id).then(function () {
 						$scope.passwords = passwordService.get();
+						$scope.rawData = passwordService.getRaw();
 					}, function () {
 						$scope.error = true;
 					});
