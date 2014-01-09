@@ -43,6 +43,26 @@
 	}
 }
 
+.password-box {
+	.text {
+		line-height: 34px;
+
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.action {
+		button {
+			width: 100%;
+		}
+	}
+
+	.row > div {
+		margin-top: 10px;
+		margin-bottom: 10px;
+	}
+}
+
 p.code {
 	background-color: #DDD;
 	color: #333;

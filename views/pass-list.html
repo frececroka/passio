@@ -4,7 +4,7 @@
 </div>
 
 <form data-ng-submit="savePassword()">
-	<table class="table password-list">
+	<div class="visible-lg"><table class="table password-list">
 		<thead>
 			<tr>
 				<th>Description</th>
@@ -62,7 +62,65 @@
 				</td>
 			</tr>
 		</tbody>
-	</table>
+	</table></div>
+
+	<div class="hidden-lg">
+		<div class="panel panel-default password-box" data-ng-repeat="password in passwords">
+			<div class="panel-heading"><a href="{{ password.url }}">{{ password.description }}</a></div>
+			<div class="panel-body">
+				<div class="row">
+					<div class="col-sm-4 text">
+						<span data-ng-show="password.id !== edit.id">{{password.username}}</span>
+
+						<input type="text"
+							class="form-control"
+							placeholder="Username"
+							data-ng-model="password.username"
+							data-ng-show="password.id === edit.id" />
+					</div>
+
+					<div class="col-sm-4 text">
+						<span class="password-wrapper" data-ng-show="password.id !== edit.id">
+							<span class="password">{{password.password}}</span>
+						</span>
+
+						<input type="password"
+							class="form-control"
+							placeholder="Password"
+							data-ng-model="password.password"
+							data-ng-show="password.id === edit.id" />
+					</div>
+
+					<div class="col-xs-6 col-sm-2 action">
+						<button type="button"
+							class="btn btn-warning"
+							data-ng-click="edit.id = password.id"
+							data-ng-show="password.id !== edit.id">
+
+							<span class="glyphicon glyphicon-pencil"></span>
+						</button>
+
+						<button type="button"
+							class="btn btn-success"
+							data-ng-click="savePassword()"
+							data-ng-show="password.id === edit.id">
+
+							<span class="glyphicon glyphicon-ok"></span>
+						</button>
+					</div>
+
+					<div class="col-xs-6 col-sm-2 action">
+						<button type="button"
+							class="btn btn-danger"
+							data-ng-click="deletePassword(password.id)">
+
+							<span class="glyphicon glyphicon-remove"></span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	<button class="hide">Submit</button>
 </form>
