@@ -6,16 +6,16 @@
 		'angular',
 		'crypto/aes',
 		'crypto/sha256',
-		'crypto/pbkdf2',
 		'passio/config',
 		'passio/rest'
-	], function (_, angular, aes, sha256, pbkdf2, conf) {
+	], function (_, angular, aes, sha256, conf) {
 
 		var core = angular.module('passio.core', ['passio.rest']);
 
 		core.factory('passwordService', [
+			'$q',
 			'restService',
-			function (storage) {
+			function ($q, storage) {
 				return {
 					/**
 					 * Tries to obtain the neccessary information to read and write password entries for the
@@ -31,9 +31,10 @@
 						this.username = username;
 						this.password = password;
 
-						this.createAuthorization();
-
-						return storage.retrieve(username).then(function (data) {
+						return this.createAuthorization().then(function (auth) {
+							this.auth = auth;
+							return storage.retrieve(username);
+						}.bind(this)).then(function (data) {
 							data = aes.decrypt(data, password);
 							this.data = JSON.parse(data);
 						}.bind(this), function () {
@@ -50,11 +51,20 @@
 					 * Creates the authorization neccessary to update the upstream datastore.
 					 */
 					createAuthorization: function () {
-						this.auth = pbkdf2(this.password, sha256(this.password), 512, {
-							iterations: conf.authIterations
+						var deferred = $q.defer();
+
+						var authWorker = new Worker('scripts/passio/auth-token-worker.js');
+						authWorker.postMessage({
+							password: this.password,
+							authIterations: conf.authIterations
 						});
 
-						this.auth = sha256(this.auth);
+						authWorker.onmessage = function (m) {
+							deferred.resolve(m.data);
+							authWorker.onmessage = null;
+						}.bind(this);
+
+						return deferred.promise;
 					},
 
 					/**
