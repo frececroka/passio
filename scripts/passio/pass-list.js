@@ -19,9 +19,29 @@
 					return;
 				}
 
-				$scope.passwords = passwordService.get();
-				$scope.rawData = passwordService.getRaw();
+				var updateData = function () {
+					$scope.passwords = passwordService.get();
+					$scope.rawData = passwordService.getRaw();
+				};
+
+				updateData();
 				$scope.edit = {};
+
+				$scope.canUndo = function () {
+					return passwordService.canUndo();
+				};
+
+				$scope.undo = function () {
+					passwordService.undo().then(updateData);
+				};
+
+				$scope.canRedo = function () {
+					return passwordService.canRedo();
+				};
+
+				$scope.redo = function () {
+					passwordService.redo().then(updateData);
+				};
 
 				$scope.savePassword = function () {
 					var id, password;
@@ -47,8 +67,7 @@
 
 					passwordService.put(password).then(function () {
 						$scope.newEntry = {};
-						$scope.passwords = passwordService.get();
-						$scope.rawData = passwordService.getRaw();
+						updateData();
 					}, function () {
 						$scope.error = true;
 					});
@@ -60,10 +79,7 @@
 					});
 
 					password.deleted = true;
-					passwordService.unput(id).then(function () {
-						$scope.passwords = passwordService.get();
-						$scope.rawData = passwordService.getRaw();
-					}, function () {
+					passwordService.unput(id).then(updateData, function () {
 						$scope.error = true;
 					});
 				};

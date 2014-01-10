@@ -125,12 +125,30 @@
 	<button class="hide">Submit</button>
 </form>
 
-<button class="btn btn-primary"
-	data-ng-class="{ active: showRawData }"
-	data-ng-click="showRawData = !showRawData">
-	<span data-ng-hide="showRawData">Show</span>
-	<span data-ng-hide="!showRawData">Hide</span>
-	raw data
-</button>
+<div class="clearfix">
+	<button class="btn btn-primary pull-left"
+		data-ng-class="{ active: showRawData }"
+		data-ng-click="showRawData = !showRawData">
+		<span data-ng-hide="showRawData">Show</span>
+		<span data-ng-hide="!showRawData">Hide</span>
+		raw data
+	</button>
+
+	<div class="undo-redo pull-right">
+		<button class="btn btn-warning"
+			type="button"
+			data-ng-click="undo()"
+			data-ng-disabled="!canUndo()">
+			<span class="glyphicon glyphicon-step-backward"></span> Undo
+		</button>
+
+		<button class="btn btn-warning"
+			type="button"
+			data-ng-click="redo()"
+			data-ng-disabled="!canRedo()">
+			Redo <span class="glyphicon glyphicon-step-forward"></span>
+		</button>
+	</div>
+</div>
 
 <p class="code" data-ng-show="showRawData">{{ rawData }}</p>
