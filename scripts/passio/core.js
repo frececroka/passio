@@ -102,6 +102,10 @@
 					put: function (entry, options) {
 						options = options || {};
 
+						// Replace an empty password with undefined, so it will be extended by _ with a
+						// generated one.
+						entry.password = entry.password ? entry.password : undefined;
+
 						entry = _.extend({
 							'description': '',
 							'url': '',
