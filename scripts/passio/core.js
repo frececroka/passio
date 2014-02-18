@@ -35,6 +35,7 @@
 							this.auth = auth;
 							return storage.retrieve(username);
 						}.bind(this)).then(function (data) {
+							this.encryptedData = data;
 							data = aes.decrypt(data, password);
 							this.data = JSON.parse(data);
 						}.bind(this), function () {
@@ -195,12 +196,12 @@
 					},
 
 					/**
-					 * Returns the raw data as a JSON object
+					 * Returns the raw encrypted data.
 					 *
-					 * @return {Object} The raw data.
+					 * @return {String} The raw data.
 					 */
 					getRaw: function () {
-						return JSON.stringify(this.data);
+						return this.encryptedData;
 					},
 
 					/**
@@ -381,7 +382,9 @@
 						var data = JSON.stringify(this.data);
 						data = aes.encrypt(data, this.password);
 
-						return storage.store(this.auth, this.username, data);
+						return storage.store(this.auth, this.username, data).then(function () {
+							this.encryptedData = data;
+						});
 					},
 
 					/**
