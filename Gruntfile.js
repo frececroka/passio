@@ -67,10 +67,18 @@ module.exports = function(grunt) {
 				],
 				tasks: ['dev']
 			}
+		},
+		connect: {
+			dist: {
+				options: {
+					base: 'dist'
+				}
+			}
 		}
 	});
 
 	grunt.registerTask('dev', ['clean:pre', 'sass:dev', 'copy:dev', 'cssmin:vendor']);
+	grunt.registerTask('server', ['dev', 'connect', 'watch']);
 
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-sass');
@@ -78,5 +86,6 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-watch');
+	grunt.loadNpmTasks('grunt-contrib-connect');
 
 };
