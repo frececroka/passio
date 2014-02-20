@@ -121,7 +121,8 @@
 								entry.id = this.data.nextId;
 								this.data.nextId += 1;
 
-								entry.created = entry.modified;
+								entry.created = new Date().getTime();
+								entry.modified = entry.created;
 							}
 
 							this.data.passwords.push(entry);
