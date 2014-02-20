@@ -6,7 +6,11 @@ requirejs.config({
 		'angular-route': 'vendor/angular-route',
 		'jquery': 'vendor/jquery',
 		'crypto': 'vendor/crypto',
-		'text': 'vendor/require/text',
+		'worker-mock': 'vendor/worker-mock',
+		'assert': 'vendor/assert',
+		'mocha': 'vendor/mocha',
+		'specs': '../tests/specs',
+		'text': 'vendor/require/text'
 	},
 	shim: {
 		'underscore': {
@@ -43,6 +47,12 @@ requirejs.config({
 		'crypto/sha256': {
 			exports: 'Crypto.SHA256',
 			deps: ['crypto']
+		},
+		'assert': {
+			exports: 'assert'
+		},
+		'mocha': {
+			exports: 'mocha'
 		}
 	}
 });

@@ -24,6 +24,9 @@ module.exports = function(grunt) {
 				files: {
 					'dist/styles/vendor.css': [
 						'bower_components/bootstrap/dist/css/bootstrap.css'
+					],
+					'dist/styles/tests.css': [
+						'bower_components/mocha/mocha.css'
 					]
 				}
 			}
@@ -45,10 +48,14 @@ module.exports = function(grunt) {
 					{ src: ['bower_components/cryptojs/lib/SHA1.js'], dest: 'dist/scripts/vendor/crypto/sha1.js' },
 					{ src: ['bower_components/cryptojs/lib/SHA256.js'], dest: 'dist/scripts/vendor/crypto/sha256.js' },
 					{ src: ['bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff'], dest: 'dist/fonts/glyphicons-halflings-regular.woff' },
+					{ src: ['bower_components/mocha/mocha.js'], dest: 'dist/scripts/vendor/mocha.js' },
+					{ src: ['bower_components/assert/assert.js'], dest: 'dist/scripts/vendor/assert.js' },
+					{ src: ['bower_components/worker-mock/worker-mock.js'], dest: 'dist/scripts/vendor/worker-mock.js' },
 					{
 						src: [
 							'scripts/**',
 							'views/**',
+							'tests/**',
 							'index.html'
 						],
 						dest: 'dist/'
@@ -63,6 +70,7 @@ module.exports = function(grunt) {
 					'scripts/**',
 					'styles/**',
 					'views/**',
+					'tests/**',
 					'index.html'
 				],
 				tasks: ['dev']

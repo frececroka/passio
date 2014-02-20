@@ -16,5 +16,10 @@
     "underscore": "~1.5.2",
     "cryptojs": "*",
     "requirejs-text": "~2.0.10"
+  },
+  "devDependencies": {
+    "mocha": "~1.17.1",
+    "assert": "~0.0.2",
+    "worker-mock": "~0.9.0"
   }
 }
