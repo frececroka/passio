@@ -12,9 +12,11 @@
 		passList.controller('PassListController', [
 			'$scope',
 			'$location',
-			'passwordService',
-			function ($scope, $location, passwordService) {
-				if (!passwordService.isInitialized()) {
+			'$routeParams',
+			'PasswordService',
+			function ($scope, $location, $routeParams, PasswordService) {
+				var passwordService = PasswordService.getInstance($routeParams.username);
+				if (!passwordService) {
 					$location.path('/login').replace();
 					return;
 				}

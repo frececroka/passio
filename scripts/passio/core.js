@@ -12,31 +12,48 @@
 
 		var core = angular.module('passio.core', ['passio.rest']);
 
-		core.factory('passwordService', [
+		core.factory('PasswordService', [
 			'$q',
 			'restService',
 			function ($q, storage) {
-				return {
+				/**
+				 * Creates a new, uninitialized instance of PasswordService using the given username and
+				 * password. To initialize this instance, the `init` method has to be called.
+				 *
+				 * @param {String} username  The username
+				 * @param {String} password  The password
+				 */
+				var PasswordService = function (username, password) {
+					this.username = username;
+					this.password = password;
+
+					PasswordService.instances[username] = this;
+				};
+
+				PasswordService.instances = {};
+				PasswordService.getInstance = function (username) {
+					return PasswordService.instances[username];
+				};
+
+				PasswordService.clearInstances = function () {
+					PasswordService.instances = {};
+				};
+
+				PasswordService.prototype = {
 					/**
-					 * Tries to obtain the neccessary information to read and write password entries for the
-					 * given user.
-					 *
-					 * @param {String} username  The username
-					 * @param {String} password  The password
+					 * Tries to obtain the neccessary information to read and write password entries for this
+					 * instance.
 					 *
 					 * @return {Promise}  A promise which is resolved when all neccessary information are
 					 *                    gathered and which is rejected when the process failed.
 					 */
-					setup: function (username, password) {
-						this.username = username;
-						this.password = password;
-
+					init: function () {
 						return this.createAuthorization().then(function (auth) {
 							this.auth = auth;
-							return storage.retrieve(username);
+							return storage.retrieve(this.username);
 						}.bind(this)).then(function (data) {
 							this.encryptedData = data;
-							data = aes.decrypt(data, password);
+							data = aes.decrypt(data, this.password);
 							this.data = JSON.parse(data);
 
 							// Older accounts don't have a undo and redo history.
@@ -426,6 +443,8 @@
 						return password;
 					}
 				};
+
+				return PasswordService;
 			}
 		]);
 

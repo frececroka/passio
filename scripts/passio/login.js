@@ -11,13 +11,13 @@
 		login.controller('LoginController', [
 			'$scope',
 			'$location',
-			'passwordService',
-			function ($scope, $location, passwordService) {
+			'PasswordService',
+			function ($scope, $location, PasswordService) {
 				$scope.doLogin = function () {
 					$scope.loginInProgress = true;
 
-					passwordService.setup($scope.user.name, $scope.user.password).then(function () {
-						$location.path('/').replace();
+					new PasswordService($scope.user.name, $scope.user.password).init().then(function () {
+						$location.path('/' + $scope.user.name).replace();
 						$scope.loginInProgress = false;
 					}, function () {
 						$scope.user.password = '';

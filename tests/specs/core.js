@@ -16,10 +16,10 @@
 		$q = $injector.get('$q');
 
 		suite('core', function () {
-			var passwordService, mockedBackendService;
+			var PasswordService, mockedBackendService;
 
 			setup(function () {
-				passwordService = $injector.get('passwordService');
+				PasswordService = $injector.get('PasswordService');
 				mockedBackendService = $injector.get('restService');
 
 				mockedBackendService.store = function (auth, key, value) {
@@ -78,9 +78,63 @@
 				});
 			});
 
+			suite('loading and accessing multiple instances of PasswordService', function () {
+				test('It should save a previously created instance for later access', function () {
+					new PasswordService('user_one', 'her_password');
+
+					assert.ok(
+						PasswordService.getInstance('user_one'),
+						'The instance for "user_one" is saved.'
+					);
+
+					assert.ok(
+						!PasswordService.getInstance('user_two'),
+						'The instance for "user_two" is not yet saved.'
+					);
+
+					new PasswordService('user_two', 'his_password');
+
+					assert.ok(
+						PasswordService.getInstance('user_one'),
+						'The instance for "user_one" is still saved.'
+					);
+
+					assert.ok(
+						PasswordService.getInstance('user_two'),
+						'The instance for "user_two" is now saved as well.'
+					);
+
+					assert.notEqual(
+						PasswordService.getInstance('user_one'), PasswordService.getInstance('user_two'),
+						'The instances for "user_one" and "user_two" are not the same.'
+					);
+				});
+
+				test('It should clear saved instances after calling PasswordService.clearInstances', function () {
+					new PasswordService('user_one', 'her_password');
+					new PasswordService('user_two', 'his_password');
+					PasswordService.clearInstances();
+
+					assert.ok(
+						!PasswordService.getInstance('user_one'),
+						'The instance for "user_one" is not saved anymore after clearing all instances.'
+					);
+
+					assert.ok(
+						!PasswordService.getInstance('user_two'),
+						'The instance for "user_two" is not saved anymore after clearing all instances.'
+					);
+				});
+
+				teardown(function () {
+					PasswordService.clearInstances();
+				});
+			});
+
 			suite('creating a new user', function () {
 				setup(function (done) {
-					passwordService.setup('new_user', 'password').then(done, done);
+					this.passwordService = new PasswordService('new_user', 'password');
+					this.passwordService.init().then(done, done);
 				});
 
 				test('It should have created a new account for a new user', function () {
@@ -108,6 +162,7 @@
 
 				teardown(function () {
 					mockedBackendService.reset();
+					PasswordService.clearInstances();
 				});
 			});
 
@@ -116,7 +171,9 @@
 					mockedBackendService.storage = {
 						'existing_user': 'UtLINJuCHnpAGGKpTfa4rPHnHNty6rqVYpwdjqxgCbpgFpn/S7Xwl1B5YjnzfEFot+EZ28UdUn4Mt7xXB8ljKYQuokbYK0ch4o4GLYY='
 					};
-					passwordService.setup('existing_user', 'another_password').then(done, done);
+
+					this.passwordService = new PasswordService('existing_user', 'another_password');
+					this.passwordService.init().then(done, done);
 				});
 
 				test('It should just fetch the existing data for an existing user', function () {
@@ -135,19 +192,21 @@
 
 				test('It should return the correct data when calling get', function () {
 					assert.deepEqual(
-						[], passwordService.get(),
+						[], this.passwordService.get(),
 						'passwordService.get() returns the correct data.'
 					);
 				});
 
 				teardown(function () {
 					mockedBackendService.reset();
+					PasswordService.clearInstances();
 				});
 			});
 
 			suite('saving entries', function () {
 				setup(function (done) {
-					passwordService.setup('existing_user', 'another_password').then(done, done);
+					this.passwordService = new PasswordService('existing_user', 'another_password');
+					this.passwordService.init().then(done, done);
 				});
 
 				test('It should save a new entry', function (done) {
@@ -158,10 +217,10 @@
 						password: '12345'
 					};
 
-					passwordService.put(newEntry).then(function () {
+					this.passwordService.put(newEntry).then(function () {
 						var entries, firstEntry, storeCall;
 
-						entries = passwordService.get();
+						entries = this.passwordService.get();
 
 						assert.strictEqual(
 							1, entries.length,
@@ -200,30 +259,30 @@
 							'48a7ae7a51262c17cbbf05eafb0a3490f7caa778', storeCall.auth,
 							'mockedBackendService.store() has been called with the correct authentication.'
 						);
-					}).then(done, done);
+					}.bind(this)).then(done, done);
 				});
 
 				test('It should generate a password if the entry has none itself', function (done) {
-					passwordService.put({
+					this.passwordService.put({
 						description: 'GitHub',
 						url: 'https://www.github.com/',
 						username: 'john_doe'
 					}).then(function () {
-						var entry = passwordService.get()[0];
+						var entry = this.passwordService.get()[0];
 						assert.ok(entry.password, 'The generated password is not empty');
-					}).then(done, done);
+					}.bind(this)).then(done, done);
 				});
 
 				test('It should generate a password if the entry has an empty password', function (done) {
-					passwordService.put({
+					this.passwordService.put({
 						description: 'GitHub',
 						url: 'https://www.github.com/',
 						username: 'john_doe',
 						password: ''
 					}).then(function () {
-						var entry = passwordService.get()[0];
+						var entry = this.passwordService.get()[0];
 						assert.ok(entry.password, 'The generated password is not empty');
-					}).then(done, done);
+					}.bind(this)).then(done, done);
 				});
 
 				test('It should be able to retrieve a saved entry from the backend', function (done) {
@@ -234,14 +293,13 @@
 						password: '12345'
 					};
 
-					passwordService.setup('existing_user', 'another_password').then(function () {
-						return passwordService.put(newEntry);
-					}).then(function () {
+					this.passwordService.put(newEntry).then(function () {
 						// We initialize the whole thing again, so that we can ensure that the entry has been
 						// persisted.
-						return passwordService.setup('existing_user', 'another_password');
-					}).then(function () {
-						var entries = passwordService.get();
+						this.passwordService = new PasswordService('existing_user', 'another_password');
+						return this.passwordService.init();
+					}.bind(this)).then(function () {
+						var entries = this.passwordService.get();
 
 						assert.strictEqual(
 							1, entries.length,
@@ -252,26 +310,30 @@
 							newEntry, _.pick(entries[0], 'description', 'url', 'username', 'password'),
 							'The persisted entry has the same properties as the entry which was previously saved.'
 						);
-					}).then(done, done);
+					}.bind(this)).then(done, done);
+				});
+
+				teardown(function () {
+					PasswordService.clearInstances();
 				});
 
 				test('It should mark updated entries as volatile until they are actually persisted', function (done) {
 					var entry;
 
-					passwordService.put({
+					this.passwordService.put({
 						description: 'Google',
 						url: 'https://www.google.com/',
 						username: 'john_doe',
 						password: '12345'
 					}).then(function () {
-						entry = passwordService.get()[0];
+						entry = this.passwordService.get()[0];
 						assert.ok(
 							!entry.volatile,
 							'The entry is not marked as volatile when persisted.'
 						);
-					}).then(done, done);
+					}.bind(this)).then(done, done);
 
-					entry = passwordService.get()[0];
+					entry = this.passwordService.get()[0];
 					assert.ok(
 						entry.volatile,
 						'The entry is marked as volatile when not persisted.'
@@ -281,23 +343,24 @@
 
 			suite('updating entries', function () {
 				setup(function (done) {
-					passwordService.setup('existing_user', 'another_password').then(function () {
-						return passwordService.put({
+					this.passwordService = new PasswordService('existing_user', 'another_password');
+					this.passwordService.init().then(function () {
+						return this.passwordService.put({
 							description: 'Google',
 							url: 'https://www.google.com/',
 							username: 'john_doe',
 							password: '12345'
 						});
-					}).then(function () {
-						var entry = passwordService.get()[0];
+					}.bind(this)).then(function () {
+						var entry = this.passwordService.get()[0];
 						entry.username = 'mr_doe';
 						entry.password = '';
-						return passwordService.put(entry);
-					}).then(done, done);
+						return this.passwordService.put(entry);
+					}.bind(this)).then(done, done);
 				});
 
 				test('It should not create a new entry when updating an existing entry', function () {
-					var entries = passwordService.get();
+					var entries = this.passwordService.get();
 					assert.equal(
 						1, entries.length,
 						'Updating entries creates no new entries'
@@ -305,12 +368,12 @@
 				});
 
 				test('It should not save an empty password for an existing entry', function () {
-					var updatedEntry = passwordService.get()[0];
+					var updatedEntry = this.passwordService.get()[0];
 					assert.ok(updatedEntry.password, 'Updating entries with an empty password doesn\'t actually save the empty password');
 				});
 
 				test('It should not use the old password an updated entry is saved with an empty password', function () {
-					var updatedEntry = passwordService.get()[0];
+					var updatedEntry = this.passwordService.get()[0];
 					assert.notEqual(
 						'12345', updatedEntry.password,
 						'Updating entries with an empty password doesn\'t use the old password'
@@ -318,7 +381,7 @@
 				});
 
 				test('It should save the updated properties when updating an entry', function () {
-					var updatedEntry = passwordService.get()[0];
+					var updatedEntry = this.passwordService.get()[0];
 					assert.equal(
 						'mr_doe', updatedEntry.username,
 						'Updating entries updates the data delivered by passwordService.get()'
@@ -326,7 +389,7 @@
 				});
 
 				test('It should mark updated entries as volatile until they are actually persisted', function (done) {
-					var entry = passwordService.get()[0];
+					var entry = this.passwordService.get()[0];
 
 					assert.ok(
 						!entry.volatile,
@@ -334,15 +397,15 @@
 					);
 
 					entry.url = 'https://www.google.com.au/';
-					passwordService.put(entry).then(function () {
-						entry = passwordService.get(entry.id);
+					this.passwordService.put(entry).then(function () {
+						entry = this.passwordService.get(entry.id);
 						assert.ok(
 							!entry.volatile,
 							'The entry is not marked as volatile when persisted.'
 						);
-					}).then(done, done);
+					}.bind(this)).then(done, done);
 
-					entry = passwordService.get(entry.id);
+					entry = this.passwordService.get(entry.id);
 					assert.ok(
 						entry.volatile,
 						'The entry is marked as volatile when not persisted.'
@@ -351,21 +414,23 @@
 
 				teardown(function () {
 					mockedBackendService.reset();
+					PasswordService.clearInstances();
 				});
 			});
 
 			suite('undoing and redoing things', function () {
 				setup(function (done) {
-					passwordService.setup('existing_user', 'another_password').then(done, done);
+					this.passwordService = new PasswordService('existing_user', 'another_password');
+					return this.passwordService.init().then(done, done);
 				});
 
 				test('It should be able to undo and redo an insertion', function () {
 					assert.ok(
-						!passwordService.canUndo(),
+						!this.passwordService.canUndo(),
 						'Initially, nothing can be undone.'
 					);
 
-					passwordService.put({
+					this.passwordService.put({
 						description: 'Google',
 						url: 'https://www.google.com/',
 						username: 'john_doe',
@@ -373,34 +438,34 @@
 					});
 
 					assert.strictEqual(
-						1, passwordService.get().length,
+						1, this.passwordService.get().length,
 						'Entry is available after saving it.'
 					);
 
 					assert.ok(
-						passwordService.canUndo(),
+						this.passwordService.canUndo(),
 						'The insertion of the entry can be undone.'
 					);
 
 					assert.ok(
-						!passwordService.canRedo(),
+						!this.passwordService.canRedo(),
 						'After the insertion of the entry, nothing can be redone.'
 					);
 
-					passwordService.undo();
+					this.passwordService.undo();
 
 					assert.ok(
-						!passwordService.canUndo(),
+						!this.passwordService.canUndo(),
 						'After undoing the insertion of the entry, nothing can be undone.'
 					);
 
 					assert.ok(
-						passwordService.canRedo(),
+						this.passwordService.canRedo(),
 						'After undoing the insertion of the entry, this action can be redone'
 					);
 
 					assert.strictEqual(
-						0, passwordService.get().length,
+						0, this.passwordService.get().length,
 						'After undoing the insertion of the entry, no entry is available.'
 					);
 				});
@@ -408,14 +473,14 @@
 				test('It should be able to undo and redo an update', function () {
 					var entry;
 
-					passwordService.put({
+					this.passwordService.put({
 						description: 'Goggle',
 						url: 'https://www.google.com/',
 						username: 'john_doe',
 						password: '12345'
 					});
 
-					entry = passwordService.get()[0];
+					entry = this.passwordService.get()[0];
 
 					assert.strictEqual(
 						'Goggle', entry.description,
@@ -423,11 +488,11 @@
 					);
 
 					entry.description = "Google";
-					passwordService.put(entry);
-					entry = passwordService.get()[0];
+					this.passwordService.put(entry);
+					entry = this.passwordService.get()[0];
 
 					assert.ok(
-						passwordService.canUndo(),
+						this.passwordService.canUndo(),
 						'After updating the entry, something can be undone.'
 					);
 
@@ -436,16 +501,16 @@
 						'The entry\'s description is "Google" after updatig it.'
 					);
 
-					passwordService.undo();
-					entry = passwordService.get()[0];
+					this.passwordService.undo();
+					entry = this.passwordService.get()[0];
 
 					assert.strictEqual(
 						'Goggle', entry.description,
 						'The entry\'s description is "Goggle" after undoing the update.'
 					);
 
-					passwordService.redo();
-					entry = passwordService.get()[0];
+					this.passwordService.redo();
+					entry = this.passwordService.get()[0];
 
 					assert.strictEqual(
 						'Google', entry.description,
@@ -456,7 +521,7 @@
 				test('It should be able to undo and redo a deletion', function () {
 					var entry;
 
-					passwordService.put({
+					this.passwordService.put({
 						description: 'Goggle',
 						url: 'https://www.google.com/',
 						username: 'john_doe',
@@ -464,31 +529,31 @@
 					});
 
 					assert.strictEqual(
-						1, passwordService.get().length,
+						1, this.passwordService.get().length,
 						'Entry is available after saving it.'
 					);
 
-					entry = passwordService.get()[0];
-					passwordService.unput(entry.id);
+					entry = this.passwordService.get()[0];
+					this.passwordService.unput(entry.id);
 
 					assert.strictEqual(
-						0, passwordService.get().length,
+						0, this.passwordService.get().length,
 						'No entry is available after deleting the only one.'
 					);
 
 					assert.ok(
-						passwordService.canUndo(),
+						this.passwordService.canUndo(),
 						'There is something to undo after deleting the entry.'
 					);
 
-					passwordService.undo();
+					this.passwordService.undo();
 
 					assert.strictEqual(
-						1, passwordService.get().length,
+						1, this.passwordService.get().length,
 						'The entry is there again after undoing the delete.'
 					);
 
-					entry = passwordService.get()[0];
+					entry = this.passwordService.get()[0];
 
 					assert.strictEqual(
 						'john_doe', entry.username,
@@ -496,20 +561,21 @@
 					);
 
 					assert.ok(
-						passwordService.canRedo(),
+						this.passwordService.canRedo(),
 						'Something can be redone after unding the deletion.'
 					);
 
-					passwordService.redo();
+					this.passwordService.redo();
 
 					assert.strictEqual(
-						0, passwordService.get().length,
+						0, this.passwordService.get().length,
 						'No entry is available after redoing the deletion.'
 					);
 				});
 
 				teardown(function () {
 					mockedBackendService.reset();
+					PasswordService.clearInstances();
 				});
 			});
 

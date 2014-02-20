@@ -9,12 +9,12 @@ require([
 	var passio = angular.module('passio', ['ngRoute', 'passio.login', 'passio.passList']);
 
 	passio.config(['$routeProvider', function ($routeProvider) {
-		$routeProvider.when('/', {
-			templateUrl: 'views/pass-list.html',
-			controller: 'PassListController'
-		}).when('/login', {
+		$routeProvider.when('/login', {
 			templateUrl: 'views/login.html',
 			controller: 'LoginController'
+		}).when('/:username', {
+			templateUrl: 'views/pass-list.html',
+			controller: 'PassListController'
 		}).otherwise({
 			redirectTo: '/login'
 		});
