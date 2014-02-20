@@ -384,7 +384,7 @@
 
 						return storage.store(this.auth, this.username, data).then(function () {
 							this.encryptedData = data;
-						});
+						}.bind(this));
 					},
 
 					/**
