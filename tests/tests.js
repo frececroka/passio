@@ -16,7 +16,8 @@
 		});
 
 		require([
-			'specs/core'
+			'specs/core',
+			'specs/encryption'
 		], function () {
 			mocha.checkLeaks();
 			mocha.run();

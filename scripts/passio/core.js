@@ -4,18 +4,18 @@
 	define([
 		'underscore',
 		'angular',
-		'crypto/aes',
-		'crypto/sha256',
 		'passio/config',
-		'passio/rest'
-	], function (_, angular, aes, sha256, conf) {
+		'passio/rest',
+		'passio/encryption'
+	], function (_, angular, conf) {
 
-		var core = angular.module('passio.core', ['passio.rest']);
+		var core = angular.module('passio.core', ['passio.rest', 'passio.encryption']);
 
 		core.factory('PasswordService', [
 			'$q',
 			'restService',
-			function ($q, storage) {
+			'EncryptionServiceFactory',
+			function ($q, storage, EncryptionServiceFactory) {
 				/**
 				 * Creates a new, uninitialized instance of PasswordService using the given username and
 				 * password. To initialize this instance, the `init` method has to be called.
@@ -25,7 +25,7 @@
 				 */
 				var PasswordService = function (username, password) {
 					this.username = username;
-					this.password = password;
+					this.encryptionService = EncryptionServiceFactory.buildFromSecretKey(password);
 
 					PasswordService.instances[username] = this;
 				};
@@ -48,13 +48,12 @@
 					 *                    gathered and which is rejected when the process failed.
 					 */
 					init: function () {
-						return this.createAuthorization().then(function (auth) {
+						return this.encryptionService.createAuthorization().then(function (auth) {
 							this.auth = auth;
 							return storage.retrieve(this.username);
 						}.bind(this)).then(function (data) {
 							this.encryptedData = data;
-							data = aes.decrypt(data, this.password);
-							this.data = JSON.parse(data);
+							this.data = this.encryptionService.decrypt(data);
 
 							// Older accounts don't have a undo and redo history.
 							this.data.undoHistory = this.data.undoHistory || [];
@@ -69,26 +68,6 @@
 
 							return this.updateUpstream();
 						}.bind(this));
-					},
-
-					/**
-					 * Creates the authorization neccessary to update the upstream datastore.
-					 */
-					createAuthorization: function () {
-						var deferred = $q.defer();
-
-						var authWorker = new Worker('scripts/passio/auth-token-worker.js');
-						authWorker.postMessage({
-							password: this.password,
-							authIterations: conf.authIterations
-						});
-
-						authWorker.onmessage = function (m) {
-							deferred.resolve(m.data);
-							authWorker.onmessage = null;
-						}.bind(this);
-
-						return deferred.promise;
 					},
 
 					/**
@@ -404,17 +383,15 @@
 					 *                    is rejected when the update failed.
 					 */
 					updateUpstream: function () {
-						var ids, data;
+						var ids, cipher;
 
 						ids = _.map(this.data.passwords, function (p) {
 							return p.id;
 						});
 
-						data = JSON.stringify(this.data);
-						data = aes.encrypt(data, this.password);
-
-						return storage.store(this.auth, this.username, data).then(function () {
-							this.encryptedData = data;
+						cipher = this.encryptionService.encrypt(this.data);
+						return storage.store(this.auth, this.username, cipher).then(function () {
+							this.encryptedData = cipher;
 
 							_.chain(this.data.passwords).filter(function (p) {
 								return _.contains(ids, p.id);
