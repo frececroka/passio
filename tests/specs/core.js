@@ -16,13 +16,13 @@
 		$q = $injector.get('$q');
 
 		suite('core', function () {
-			var PasswordService, mockedBackendService;
+			var PasswordService, MockedBackendService;
 
 			setup(function () {
 				PasswordService = $injector.get('PasswordService');
-				mockedBackendService = $injector.get('restService');
+				MockedBackendService = $injector.get('restService');
 
-				mockedBackendService.store = function (auth, key, value) {
+				MockedBackendService.store = function (auth, key, value) {
 					var deferred = $q.defer();
 
 					this.storage[key] = value;
@@ -36,7 +36,7 @@
 					return deferred.promise;
 				};
 
-				mockedBackendService.retrieve = function (key) {
+				MockedBackendService.retrieve = function (key) {
 					var deferred, result;
 
 					deferred = $q.defer();
@@ -57,13 +57,13 @@
 					return deferred.promise;
 				};
 
-				mockedBackendService.reset = function () {
-					mockedBackendService.storage = {};
-					mockedBackendService.storeCalls = [];
-					mockedBackendService.retrieveCalls = [];
+				MockedBackendService.reset = function () {
+					MockedBackendService.storage = {};
+					MockedBackendService.storeCalls = [];
+					MockedBackendService.retrieveCalls = [];
 				};
 
-				mockedBackendService.reset();
+				MockedBackendService.reset();
 
 				Worker.init();
 				Worker.mock('scripts/passio/auth-token-worker.js', function () {
@@ -139,36 +139,36 @@
 
 				test('It should have created a new account for a new user', function () {
 					assert.strictEqual(
-						1, mockedBackendService.storeCalls.length,
-						'mockedBackendService.store() was called one time.'
+						1, MockedBackendService.storeCalls.length,
+						'MockedBackendService.store() was called one time.'
 					);
 				});
 
-				test('It should have called mockedBackendService.store() with the right parameters', function () {
-					var storeCall = mockedBackendService.storeCalls[0];
+				test('It should have called MockedBackendService.store() with the right parameters', function () {
+					var storeCall = MockedBackendService.storeCalls[0];
 
 					assert.strictEqual(
 						'5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8',
 						storeCall.auth,
-						'mockedBackendService.store() was called with the right authentication token.'
+						'MockedBackendService.store() was called with the right authentication token.'
 					);
 
 					assert.strictEqual(
 						'new_user',
 						storeCall.key,
-						'mockedBackendService.store() was called with the right key.'
+						'MockedBackendService.store() was called with the right key.'
 					);
 				});
 
 				teardown(function () {
-					mockedBackendService.reset();
+					MockedBackendService.reset();
 					PasswordService.clearInstances();
 				});
 			});
 
 			suite('loading an existing user', function () {
 				setup(function (done) {
-					mockedBackendService.storage = {
+					MockedBackendService.storage = {
 						'existing_user': 'UtLINJuCHnpAGGKpTfa4rPHnHNty6rqVYpwdjqxgCbpgFpn/S7Xwl1B5YjnzfEFot+EZ28UdUn4Mt7xXB8ljKYQuokbYK0ch4o4GLYY='
 					};
 
@@ -178,15 +178,15 @@
 
 				test('It should just fetch the existing data for an existing user', function () {
 					assert.strictEqual(
-						1, mockedBackendService.retrieveCalls.length,
-						'mockedBackendService.retrieve() was called one time.'
+						1, MockedBackendService.retrieveCalls.length,
+						'MockedBackendService.retrieve() was called one time.'
 					);
 				});
 
 				test('It should not try to create an existing user', function () {
 					assert.strictEqual(
-						0, mockedBackendService.storeCalls.length,
-						'mockedBackendService.store() was not called.'
+						0, MockedBackendService.storeCalls.length,
+						'MockedBackendService.store() was not called.'
 					);
 				});
 
@@ -198,7 +198,7 @@
 				});
 
 				teardown(function () {
-					mockedBackendService.reset();
+					MockedBackendService.reset();
 					PasswordService.clearInstances();
 				});
 			});
@@ -249,15 +249,15 @@
 							'The "created" timestamp is sufficently close (<500ms) to the current timestamp'
 						);
 
-						storeCall = mockedBackendService.storeCalls[0];
+						storeCall = MockedBackendService.storeCalls[0];
 						assert.strictEqual(
 							'existing_user', storeCall.key,
-							'mockedBackendService.store() has been called with the correct key.'
+							'MockedBackendService.store() has been called with the correct key.'
 						);
 
 						assert.strictEqual(
 							'48a7ae7a51262c17cbbf05eafb0a3490f7caa778', storeCall.auth,
-							'mockedBackendService.store() has been called with the correct authentication.'
+							'MockedBackendService.store() has been called with the correct authentication.'
 						);
 					}.bind(this)).then(done, done);
 				});
@@ -413,7 +413,7 @@
 				});
 
 				teardown(function () {
-					mockedBackendService.reset();
+					MockedBackendService.reset();
 					PasswordService.clearInstances();
 				});
 			});
@@ -574,7 +574,7 @@
 				});
 
 				teardown(function () {
-					mockedBackendService.reset();
+					MockedBackendService.reset();
 					PasswordService.clearInstances();
 				});
 			});
