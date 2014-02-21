@@ -38,6 +38,10 @@
 							this.encryptedData = data;
 							data = aes.decrypt(data, password);
 							this.data = JSON.parse(data);
+
+							// Older accounts don't have a undo and redo history.
+							this.data.undoHistory = this.data.undoHistory || [];
+							this.data.redoHistory = this.data.redoHistory || [];
 						}.bind(this), function () {
 							this.data = {
 								nextId: 1,
