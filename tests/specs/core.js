@@ -25,7 +25,6 @@
 				mockedBackendService.store = function (auth, key, value) {
 					var deferred = $q.defer();
 
-					deferred.resolve();
 					this.storage[key] = value;
 					this.storeCalls.push({
 						auth: auth,
@@ -33,17 +32,23 @@
 						value: value
 					});
 
+					setTimeout(deferred.resolve, 0);
 					return deferred.promise;
 				};
 
 				mockedBackendService.retrieve = function (key) {
-					var deferred = $q.defer();
+					var deferred, result;
 
-					if (!this.storage[key]) {
-						deferred.reject();
-					} else {
-						deferred.resolve(this.storage[key]);
-					}
+					deferred = $q.defer();
+					result = this.storage[key];
+
+					setTimeout(function () {
+						if (!result) {
+							deferred.reject();
+						} else {
+							deferred.resolve(result);
+						}
+					}, 0);
 
 					this.retrieveCalls.push({
 						key: key
