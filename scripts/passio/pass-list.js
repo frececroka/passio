@@ -57,10 +57,6 @@
 						if (!password) {
 							return;
 						}
-
-						// Indicate that this password has not been saved yet. This property will be overwritten
-						// as soon as the passwords have been saved.
-						password.volatile = true;
 					} else {
 						password = $scope.newEntry;
 					}
@@ -71,6 +67,11 @@
 					}, function () {
 						$scope.error = true;
 					});
+
+					// This call to updateData shows the submitted password immediately. The saved password will have
+					// the volatile property though. The second call to updateDate (after the promise has been resolved)
+					// will remove this volatile property.
+					updateData();
 				};
 
 				$scope.deletePassword = function (id) {

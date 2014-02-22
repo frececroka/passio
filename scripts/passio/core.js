@@ -121,6 +121,7 @@
 						}, entry || {});
 
 						entry = _.pick(entry, 'id', 'description', 'url', 'username', 'password');
+						entry.volatile = true;
 
 						if (!entry.id || options.forceCreate) {
 							if (!entry.id) {
@@ -386,11 +387,23 @@
 					 *                    is rejected when the update failed.
 					 */
 					updateUpstream: function () {
-						var data = JSON.stringify(this.data);
+						var ids, data;
+
+						ids = _.map(this.data.passwords, function (p) {
+							return p.id;
+						});
+
+						data = JSON.stringify(this.data);
 						data = aes.encrypt(data, this.password);
 
 						return storage.store(this.auth, this.username, data).then(function () {
 							this.encryptedData = data;
+
+							_.chain(this.data.passwords).filter(function (p) {
+								return _.contains(ids, p.id);
+							}).each(function (p) {
+								delete p.volatile;
+							});
 						}.bind(this));
 					},
 

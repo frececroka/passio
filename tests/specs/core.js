@@ -254,6 +254,29 @@
 						);
 					}).then(done, done);
 				});
+
+				test('It should mark updated entries as volatile until they are actually persisted', function (done) {
+					var entry;
+
+					passwordService.put({
+						description: 'Google',
+						url: 'https://www.google.com/',
+						username: 'john_doe',
+						password: '12345'
+					}).then(function () {
+						entry = passwordService.get()[0];
+						assert.ok(
+							!entry.volatile,
+							'The entry is not marked as volatile when persisted.'
+						);
+					}).then(done, done);
+
+					entry = passwordService.get()[0];
+					assert.ok(
+						entry.volatile,
+						'The entry is marked as volatile when not persisted.'
+					);
+				});
 			});
 
 			suite('updating entries', function () {
@@ -299,6 +322,30 @@
 					assert.equal(
 						'mr_doe', updatedEntry.username,
 						'Updating entries updates the data delivered by passwordService.get()'
+					);
+				});
+
+				test('It should mark updated entries as volatile until they are actually persisted', function (done) {
+					var entry = passwordService.get()[0];
+
+					assert.ok(
+						!entry.volatile,
+						'The entry is not marked as volatile when persisted.'
+					);
+
+					entry.url = 'https://www.google.com.au/';
+					passwordService.put(entry).then(function () {
+						entry = passwordService.get(entry.id);
+						assert.ok(
+							!entry.volatile,
+							'The entry is not marked as volatile when persisted.'
+						);
+					}).then(done, done);
+
+					entry = passwordService.get(entry.id);
+					assert.ok(
+						entry.volatile,
+						'The entry is marked as volatile when not persisted.'
 					);
 				});
 
