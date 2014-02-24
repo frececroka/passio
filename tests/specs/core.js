@@ -4,65 +4,41 @@
 	define([
 		'underscore',
 		'chai',
+		'sinon',
 		'angular',
 		'worker-mock',
+		'mocks/rest',
 		'passio/core',
-	], function (_, chai, angular, Worker) {
+	], function (_, chai, sinon, angular, Worker) {
 		var assert = chai.assert;
 
 		describe('core', function () {
-			var $injector, $q, PasswordService, MockedBackendService;
+			var $injector, $q, PasswordService, MockedBackendService, enableBackendSpy, disableBackendSpy;
 
 			beforeEach(function () {
-				angular.module('passio.core');
-				$injector = angular.injector(['passio.core', 'ng']);
+				angular.module('passio.core').value('config', {
+					backendUrl: "https://tests.passio.com/",
+					authIterations: 1357,
+					passwordLength: 32
+				});
+
+				$injector = angular.injector(['passio.core', 'passio.rest-mock', 'ng']);
 
 				$q = $injector.get('$q');
 				PasswordService = $injector.get('PasswordService');
 				MockedBackendService = $injector.get('restService');
 
-				MockedBackendService.store = function (auth, key, value) {
-					var deferred = $q.defer();
-
-					this.storage[key] = value;
-					this.storeCalls.push({
-						auth: auth,
-						key: key,
-						value: value
-					});
-
-					setTimeout(deferred.resolve, 0);
-					return deferred.promise;
+				enableBackendSpy = function () {
+					return {
+						'store': sinon.spy(MockedBackendService, 'store'),
+						'retrieve': sinon.spy(MockedBackendService, 'retrieve')
+					};
 				};
 
-				MockedBackendService.retrieve = function (key) {
-					var deferred, result;
-
-					deferred = $q.defer();
-					result = this.storage[key];
-
-					setTimeout(function () {
-						if (!result) {
-							deferred.reject();
-						} else {
-							deferred.resolve(result);
-						}
-					}, 0);
-
-					this.retrieveCalls.push({
-						key: key
-					});
-
-					return deferred.promise;
+				disableBackendSpy = function (spy) {
+					spy.store.restore();
+					spy.retrieve.restore();
 				};
-
-				MockedBackendService.reset = function () {
-					MockedBackendService.storage = {};
-					MockedBackendService.storeCalls = [];
-					MockedBackendService.retrieveCalls = [];
-				};
-
-				MockedBackendService.reset();
 
 				Worker.init();
 				Worker.mock('scripts/passio/auth-token-worker.js', function () {
@@ -126,65 +102,67 @@
 				});
 
 				afterEach(function () {
+					MockedBackendService.reset();
 					PasswordService.clearInstances();
 				});
 			});
 
 			describe('creating a new user', function () {
+				var backendSpy;
+
 				beforeEach(function (done) {
+					backendSpy = enableBackendSpy();
+
 					this.passwordService = new PasswordService('new_user', 'password');
 					this.passwordService.init().then(done, done);
 				});
 
 				it('should have created a new account for a new user', function () {
-					assert.lengthOf(
-						MockedBackendService.storeCalls, 1,
-						'MockedBackendService.store() was called one time.'
+					assert.strictEqual(
+						1, backendSpy.store.callCount,
+						'backendSpy.store() was called one time.'
 					);
 				});
 
-				it('should have called MockedBackendService.store() with the right parameters', function () {
-					var storeCall = MockedBackendService.storeCalls[0];
-
-					assert.strictEqual(
-						'5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8',
-						storeCall.auth,
-						'MockedBackendService.store() was called with the right authentication token.'
-					);
-
-					assert.strictEqual(
-						'new_user',
-						storeCall.key,
-						'MockedBackendService.store() was called with the right key.'
+				it('should have called backendSpy.store() with the right parameters', function () {
+					assert.ok(
+						backendSpy.store.calledWith('5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8', 'new_user'),
+						'MockedBackendService.store() was called with the correct authentication and username'
 					);
 				});
 
 				afterEach(function () {
+					disableBackendSpy(backendSpy);
 					MockedBackendService.reset();
 					PasswordService.clearInstances();
 				});
 			});
 
 			describe('loading an existing user', function () {
-				beforeEach(function (done) {
-					MockedBackendService.storage = {
-						'existing_user': 'UtLINJuCHnpAGGKpTfa4rPHnHNty6rqVYpwdjqxgCbpgFpn/S7Xwl1B5YjnzfEFot+EZ28UdUn4Mt7xXB8ljKYQuokbYK0ch4o4GLYY='
-					};
+				var backendSpy;
 
-					this.passwordService = new PasswordService('existing_user', 'another_password');
-					this.passwordService.init().then(done, done);
+				beforeEach(function (done) {
+					MockedBackendService.store(
+						'48a7ae7a51262c17cbbf05eafb0a3490f7caa778', 'existing_user',
+						'UtLINJuCHnpAGGKpTfa4rPHnHNty6rqVYpwdjqxgCbpgFpn/S7Xwl1B5YjnzfEFot+EZ28UdUn4Mt7xXB8ljKYQuokbYK0ch4o4GLYY='
+					).then(function () {
+						backendSpy = enableBackendSpy();
+
+						this.passwordService = new PasswordService('existing_user', 'another_password');
+						return this.passwordService.init();
+					}.bind(this)).then(done, done);
 				});
 
 				it('should just fetch the existing data for an existing user', function () {
-					assert.lengthOf(
-						MockedBackendService.retrieveCalls, 1,
+					assert.strictEqual(
+						1, backendSpy.retrieve.callCount,
 						'MockedBackendService.retrieve() was called one time.'
 					);
 				});
 
 				it('should not try to create an existing user', function () {
-					assert.lengthOf(
-						MockedBackendService.storeCalls, 0,
+					assert.strictEqual(
+						0, backendSpy.store.callCount,
 						'MockedBackendService.store() was not called.'
 					);
 				});
@@ -197,13 +175,18 @@
 				});
 
 				afterEach(function () {
+					disableBackendSpy(backendSpy);
 					MockedBackendService.reset();
 					PasswordService.clearInstances();
 				});
 			});
 
 			describe('saving entries', function () {
+				var backendSpy;
+
 				beforeEach(function (done) {
+					backendSpy = enableBackendSpy();
+
 					this.createPasswordService = function () {
 						var passwordService = new PasswordService('existing_user', 'another_password');
 						return passwordService.init().then(function () {
@@ -256,15 +239,9 @@
 							'The "created" timestamp is sufficently close (<500ms) to the current timestamp'
 						);
 
-						storeCall = MockedBackendService.storeCalls[0];
-						assert.strictEqual(
-							'existing_user', storeCall.key,
-							'MockedBackendService.store() has been called with the correct key.'
-						);
-
-						assert.strictEqual(
-							'48a7ae7a51262c17cbbf05eafb0a3490f7caa778', storeCall.auth,
-							'MockedBackendService.store() has been called with the correct authentication.'
+						assert.ok(
+							backendSpy.store.calledWith('48a7ae7a51262c17cbbf05eafb0a3490f7caa778', 'existing_user'),
+							'backendSpy.store() has been called with the correct key and authentication.'
 						);
 					}.bind(this)).then(done, done);
 				});
@@ -321,6 +298,8 @@
 				});
 
 				afterEach(function () {
+					disableBackendSpy(backendSpy);
+					MockedBackendService.reset();
 					PasswordService.clearInstances();
 				});
 
@@ -596,6 +575,8 @@
 
 			afterEach(function () {
 				Worker.restore();
+				MockedBackendService.reset();
+				PasswordService.clearInstances();
 			});
 		});
 	});

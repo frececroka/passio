@@ -11,6 +11,7 @@ requirejs.config({
 		'sinon': 'vendor/sinon',
 		'mocha': 'vendor/mocha',
 		'specs': '../tests/specs',
+		'mocks': '../tests/mocks',
 		'text': 'vendor/require/text'
 	},
 	shim: {
