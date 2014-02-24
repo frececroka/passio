@@ -50,6 +50,7 @@ module.exports = function(grunt) {
 					{ src: ['bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff'], dest: 'dist/fonts/glyphicons-halflings-regular.woff' },
 					{ src: ['bower_components/mocha/mocha.js'], dest: 'dist/scripts/vendor/mocha.js' },
 					{ src: ['bower_components/chai/chai.js'], dest: 'dist/scripts/vendor/chai.js' },
+					{ src: ['bower_components/sinon/index.js'], dest: 'dist/scripts/vendor/sinon.js' },
 					{ src: ['bower_components/worker-mock/worker-mock.js'], dest: 'dist/scripts/vendor/worker-mock.js' },
 					{
 						src: [

@@ -8,6 +8,7 @@ requirejs.config({
 		'crypto': 'vendor/crypto',
 		'worker-mock': 'vendor/worker-mock',
 		'chai': 'vendor/chai',
+		'sinon': 'vendor/sinon',
 		'mocha': 'vendor/mocha',
 		'specs': '../tests/specs',
 		'text': 'vendor/require/text'
@@ -50,6 +51,9 @@ requirejs.config({
 		},
 		'mocha': {
 			exports: 'mocha'
+		},
+		'sinon': {
+			exports: 'sinon'
 		}
 	}
 });
