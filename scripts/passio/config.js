@@ -2,9 +2,11 @@
 	'use strict';
 
 	define([
+		'angular',
 		'text!passio.json'
-	], function (conf) {
-		return JSON.parse(conf);
+	], function (angular, config) {
+		var passioConfig = angular.module('passio.config', []);
+		passioConfig.value('config', JSON.parse(config));
 	});
 
 })();

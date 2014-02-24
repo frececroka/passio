@@ -7,15 +7,16 @@
 		'passio/config',
 		'passio/rest',
 		'passio/encryption'
-	], function (_, angular, conf) {
+	], function (_, angular) {
 
-		var core = angular.module('passio.core', ['passio.rest', 'passio.encryption']);
+		var core = angular.module('passio.core', ['passio.rest', 'passio.encryption', 'passio.config']);
 
 		core.factory('PasswordService', [
 			'$q',
+			'config',
 			'restService',
 			'EncryptionServiceFactory',
-			function ($q, storage, EncryptionServiceFactory) {
+			function ($q, conf, storage, EncryptionServiceFactory) {
 				/**
 				 * Creates a new, uninitialized instance of PasswordService using the given username and
 				 * password. To initialize this instance, the `init` method has to be called.

@@ -4,13 +4,14 @@
 	define([
 		'angular',
 		'passio/config'
-	], function (angular, conf) {
+	], function (angular) {
 
-		var rest = angular.module('passio.rest', []);
+		var rest = angular.module('passio.rest', ['passio.config']);
 
 		rest.factory('restService', [
 			'$http',
-			function ($http) {
+			'config',
+			function ($http, conf) {
 				return {
 					store: function (auth, key, value) {
 						return $http({

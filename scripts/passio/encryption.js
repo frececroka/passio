@@ -5,12 +5,13 @@
 		'angular',
 		'crypto/aes',
 		'passio/config'
-	], function (angular, aes, conf) {
-		var encryption = angular.module('passio.encryption', []);
+	], function (angular, aes) {
+		var encryption = angular.module('passio.encryption', ['passio.config']);
 
 		encryption.factory('EncryptionService', [
 			'$q',
-			function ($q) {
+			'config',
+			function ($q, conf) {
 				var EncryptionService = function (secretKey) {
 					this.secretKey = secretKey;
 				};
