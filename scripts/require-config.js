@@ -7,7 +7,7 @@ requirejs.config({
 		'jquery': 'vendor/jquery',
 		'crypto': 'vendor/crypto',
 		'worker-mock': 'vendor/worker-mock',
-		'assert': 'vendor/assert',
+		'chai': 'vendor/chai',
 		'mocha': 'vendor/mocha',
 		'specs': '../tests/specs',
 		'text': 'vendor/require/text'
@@ -47,9 +47,6 @@ requirejs.config({
 		'crypto/sha256': {
 			exports: 'Crypto.SHA256',
 			deps: ['crypto']
-		},
-		'assert': {
-			exports: 'assert'
 		},
 		'mocha': {
 			exports: 'mocha'

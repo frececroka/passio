@@ -3,11 +3,13 @@
 
 	define([
 		'underscore',
-		'assert',
+		'chai',
 		'angular',
 		'worker-mock',
 		'passio/core',
-	], function (_, assert, angular, Worker) {
+	], function (_, chai, angular, Worker) {
+		var assert = chai.assert;
+
 		describe('core', function () {
 			var $injector, $q, PasswordService, MockedBackendService;
 
@@ -84,8 +86,8 @@
 						'The instance for "user_one" is saved.'
 					);
 
-					assert.ok(
-						!PasswordService.getInstance('user_two'),
+					assert.notOk(
+						PasswordService.getInstance('user_two'),
 						'The instance for "user_two" is not yet saved.'
 					);
 
@@ -112,13 +114,13 @@
 					new PasswordService('user_two', 'his_password');
 					PasswordService.clearInstances();
 
-					assert.ok(
-						!PasswordService.getInstance('user_one'),
+					assert.notOk(
+						PasswordService.getInstance('user_one'),
 						'The instance for "user_one" is not saved anymore after clearing all instances.'
 					);
 
-					assert.ok(
-						!PasswordService.getInstance('user_two'),
+					assert.notOk(
+						PasswordService.getInstance('user_two'),
 						'The instance for "user_two" is not saved anymore after clearing all instances.'
 					);
 				});
@@ -135,8 +137,8 @@
 				});
 
 				it('should have created a new account for a new user', function () {
-					assert.strictEqual(
-						1, MockedBackendService.storeCalls.length,
+					assert.lengthOf(
+						MockedBackendService.storeCalls, 1,
 						'MockedBackendService.store() was called one time.'
 					);
 				});
@@ -174,22 +176,22 @@
 				});
 
 				it('should just fetch the existing data for an existing user', function () {
-					assert.strictEqual(
-						1, MockedBackendService.retrieveCalls.length,
+					assert.lengthOf(
+						MockedBackendService.retrieveCalls, 1,
 						'MockedBackendService.retrieve() was called one time.'
 					);
 				});
 
 				it('should not try to create an existing user', function () {
-					assert.strictEqual(
-						0, MockedBackendService.storeCalls.length,
+					assert.lengthOf(
+						MockedBackendService.storeCalls, 0,
 						'MockedBackendService.store() was not called.'
 					);
 				});
 
 				it('should return the correct data when calling get', function () {
-					assert.deepEqual(
-						[], this.passwordService.get(),
+					assert.lengthOf(
+						this.passwordService.get(), 0,
 						'passwordService.get() returns the correct data.'
 					);
 				});
@@ -227,15 +229,15 @@
 
 						entries = this.passwordService.get();
 
-						assert.strictEqual(
-							1, entries.length,
+						assert.lengthOf(
+							entries, 1,
 							'passwordService.get() returns one password.'
 						);
 
 						firstEntry = entries[0];
 
-						assert.strictEqual(
-							'number', typeof firstEntry.id,
+						assert.isNumber(
+							firstEntry.id,
 							'The id of the saved password is a number.'
 						);
 
@@ -306,8 +308,8 @@
 					}.bind(this)).then(function () {
 						var entries = this.passwordService.get();
 
-						assert.strictEqual(
-							1, entries.length,
+						assert.lengthOf(
+							entries, 1,
 							'One entry has been saved.'
 						);
 
@@ -332,16 +334,16 @@
 						password: '12345'
 					}).then(function () {
 						entry = this.passwordService.get()[0];
-						assert.ok(
-							!entry.volatile,
+						assert.notOk(
+							entry.volatile,
 							'The entry is not marked as volatile when persisted.'
 						);
 
 						return this.createPasswordService();
 					}.bind(this)).then(function (passwordService) {
 						entry = passwordService.get()[0];
-						assert.ok(
-							!entry.volatile,
+						assert.notOk(
+							entry.volatile,
 							'The entry is not marked as volatile after restoring from the persistence layer.'
 						);
 					}).then(done, done);
@@ -374,8 +376,8 @@
 
 				it('should not create a new entry when updating an existing entry', function () {
 					var entries = this.passwordService.get();
-					assert.equal(
-						1, entries.length,
+					assert.lengthOf(
+						entries, 1,
 						'Updating entries creates no new entries'
 					);
 				});
@@ -395,7 +397,7 @@
 
 				it('should save the updated properties when updating an entry', function () {
 					var updatedEntry = this.passwordService.get()[0];
-					assert.equal(
+					assert.strictEqual(
 						'mr_doe', updatedEntry.username,
 						'Updating entries updates the data delivered by passwordService.get()'
 					);
@@ -404,16 +406,16 @@
 				it('should mark updated entries as volatile until they are actually persisted', function (done) {
 					var entry = this.passwordService.get()[0];
 
-					assert.ok(
-						!entry.volatile,
+					assert.notOk(
+						entry.volatile,
 						'The entry is not marked as volatile when persisted.'
 					);
 
 					entry.url = 'https://www.google.com.au/';
 					this.passwordService.put(entry).then(function () {
 						entry = this.passwordService.get(entry.id);
-						assert.ok(
-							!entry.volatile,
+						assert.notOk(
+							entry.volatile,
 							'The entry is not marked as volatile when persisted.'
 						);
 					}.bind(this)).then(done, done);
@@ -438,8 +440,8 @@
 				});
 
 				it('should be able to undo and redo an insertion', function () {
-					assert.ok(
-						!this.passwordService.canUndo(),
+					assert.notOk(
+						this.passwordService.canUndo(),
 						'Initially, nothing can be undone.'
 					);
 
@@ -450,8 +452,8 @@
 						password: '12345'
 					});
 
-					assert.strictEqual(
-						1, this.passwordService.get().length,
+					assert.lengthOf(
+						this.passwordService.get(), 1,
 						'Entry is available after saving it.'
 					);
 
@@ -460,15 +462,15 @@
 						'The insertion of the entry can be undone.'
 					);
 
-					assert.ok(
-						!this.passwordService.canRedo(),
+					assert.notOk(
+						this.passwordService.canRedo(),
 						'After the insertion of the entry, nothing can be redone.'
 					);
 
 					this.passwordService.undo();
 
-					assert.ok(
-						!this.passwordService.canUndo(),
+					assert.notOk(
+						this.passwordService.canUndo(),
 						'After undoing the insertion of the entry, nothing can be undone.'
 					);
 
@@ -477,8 +479,8 @@
 						'After undoing the insertion of the entry, this action can be redone'
 					);
 
-					assert.strictEqual(
-						0, this.passwordService.get().length,
+					assert.lengthOf(
+						this.passwordService.get(), 0,
 						'After undoing the insertion of the entry, no entry is available.'
 					);
 				});
@@ -541,16 +543,16 @@
 						password: '12345'
 					});
 
-					assert.strictEqual(
-						1, this.passwordService.get().length,
+					assert.lengthOf(
+						this.passwordService.get(), 1,
 						'Entry is available after saving it.'
 					);
 
 					entry = this.passwordService.get()[0];
 					this.passwordService.unput(entry.id);
 
-					assert.strictEqual(
-						0, this.passwordService.get().length,
+					assert.lengthOf(
+						this.passwordService.get(), 0,
 						'No entry is available after deleting the only one.'
 					);
 
@@ -561,8 +563,8 @@
 
 					this.passwordService.undo();
 
-					assert.strictEqual(
-						1, this.passwordService.get().length,
+					assert.lengthOf(
+						this.passwordService.get(), 1,
 						'The entry is there again after undoing the delete.'
 					);
 
@@ -580,8 +582,8 @@
 
 					this.passwordService.redo();
 
-					assert.strictEqual(
-						0, this.passwordService.get().length,
+					assert.lengthOf(
+						this.passwordService.get(), 0,
 						'No entry is available after redoing the deletion.'
 					);
 				});

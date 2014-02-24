@@ -2,11 +2,13 @@
 	'use strict';
 
 	define([
-		'assert',
+		'chai',
 		'angular',
 		'worker-mock',
 		'passio/encryption'
-	], function (assert, angular, Worker) {
+	], function (chai, angular, Worker) {
+		var assert = chai.assert;
+
 		describe('encryption', function () {
 			var $injector, EncryptionService;
 
@@ -44,7 +46,7 @@
 
 					assert.throws(function () {
 						encryptionServiceTwo.decrypt(cipher);
-					}, 'The EncryptionService fails to decrypt data encrypted with a different key.');
+					});
 				});
 			});
 

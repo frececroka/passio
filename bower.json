@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "mocha": "~1.17.1",
-    "assert": "~0.0.2",
+    "chai": "~1.9.0",
     "worker-mock": "~0.9.0"
   }
 }
