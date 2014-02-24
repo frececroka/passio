@@ -8,10 +8,10 @@
 		'worker-mock',
 		'passio/core',
 	], function (_, assert, angular, Worker) {
-		suite('core', function () {
+		describe('core', function () {
 			var $injector, $q, PasswordService, MockedBackendService;
 
-			setup(function () {
+			beforeEach(function () {
 				angular.module('passio.core');
 				$injector = angular.injector(['passio.core', 'ng']);
 
@@ -75,8 +75,8 @@
 				});
 			});
 
-			suite('loading and accessing multiple instances of PasswordService', function () {
-				test('It should save a previously created instance for later access', function () {
+			describe('loading and accessing multiple instances of PasswordService', function () {
+				it('should save a previously created instance for later access', function () {
 					new PasswordService('user_one', 'her_password');
 
 					assert.ok(
@@ -107,7 +107,7 @@
 					);
 				});
 
-				test('It should clear saved instances after calling PasswordService.clearInstances', function () {
+				it('should clear saved instances after calling PasswordService.clearInstances', function () {
 					new PasswordService('user_one', 'her_password');
 					new PasswordService('user_two', 'his_password');
 					PasswordService.clearInstances();
@@ -123,25 +123,25 @@
 					);
 				});
 
-				teardown(function () {
+				afterEach(function () {
 					PasswordService.clearInstances();
 				});
 			});
 
-			suite('creating a new user', function () {
-				setup(function (done) {
+			describe('creating a new user', function () {
+				beforeEach(function (done) {
 					this.passwordService = new PasswordService('new_user', 'password');
 					this.passwordService.init().then(done, done);
 				});
 
-				test('It should have created a new account for a new user', function () {
+				it('should have created a new account for a new user', function () {
 					assert.strictEqual(
 						1, MockedBackendService.storeCalls.length,
 						'MockedBackendService.store() was called one time.'
 					);
 				});
 
-				test('It should have called MockedBackendService.store() with the right parameters', function () {
+				it('should have called MockedBackendService.store() with the right parameters', function () {
 					var storeCall = MockedBackendService.storeCalls[0];
 
 					assert.strictEqual(
@@ -157,14 +157,14 @@
 					);
 				});
 
-				teardown(function () {
+				afterEach(function () {
 					MockedBackendService.reset();
 					PasswordService.clearInstances();
 				});
 			});
 
-			suite('loading an existing user', function () {
-				setup(function (done) {
+			describe('loading an existing user', function () {
+				beforeEach(function (done) {
 					MockedBackendService.storage = {
 						'existing_user': 'UtLINJuCHnpAGGKpTfa4rPHnHNty6rqVYpwdjqxgCbpgFpn/S7Xwl1B5YjnzfEFot+EZ28UdUn4Mt7xXB8ljKYQuokbYK0ch4o4GLYY='
 					};
@@ -173,35 +173,35 @@
 					this.passwordService.init().then(done, done);
 				});
 
-				test('It should just fetch the existing data for an existing user', function () {
+				it('should just fetch the existing data for an existing user', function () {
 					assert.strictEqual(
 						1, MockedBackendService.retrieveCalls.length,
 						'MockedBackendService.retrieve() was called one time.'
 					);
 				});
 
-				test('It should not try to create an existing user', function () {
+				it('should not try to create an existing user', function () {
 					assert.strictEqual(
 						0, MockedBackendService.storeCalls.length,
 						'MockedBackendService.store() was not called.'
 					);
 				});
 
-				test('It should return the correct data when calling get', function () {
+				it('should return the correct data when calling get', function () {
 					assert.deepEqual(
 						[], this.passwordService.get(),
 						'passwordService.get() returns the correct data.'
 					);
 				});
 
-				teardown(function () {
+				afterEach(function () {
 					MockedBackendService.reset();
 					PasswordService.clearInstances();
 				});
 			});
 
-			suite('saving entries', function () {
-				setup(function (done) {
+			describe('saving entries', function () {
+				beforeEach(function (done) {
 					this.createPasswordService = function () {
 						var passwordService = new PasswordService('existing_user', 'another_password');
 						return passwordService.init().then(function () {
@@ -214,7 +214,7 @@
 					}.bind(this)).then(done, done);
 				});
 
-				test('It should save a new entry', function (done) {
+				it('should save a new entry', function (done) {
 					var newEntry = {
 						description: 'Amazon',
 						url: 'https://www.amazon.com.au/',
@@ -267,7 +267,7 @@
 					}.bind(this)).then(done, done);
 				});
 
-				test('It should generate a password if the entry has none itself', function (done) {
+				it('should generate a password if the entry has none itself', function (done) {
 					this.passwordService.put({
 						description: 'GitHub',
 						url: 'https://www.github.com/',
@@ -278,7 +278,7 @@
 					}.bind(this)).then(done, done);
 				});
 
-				test('It should generate a password if the entry has an empty password', function (done) {
+				it('should generate a password if the entry has an empty password', function (done) {
 					this.passwordService.put({
 						description: 'GitHub',
 						url: 'https://www.github.com/',
@@ -290,7 +290,7 @@
 					}.bind(this)).then(done, done);
 				});
 
-				test('It should be able to retrieve a saved entry from the backend', function (done) {
+				it('should be able to retrieve a saved entry from the backend', function (done) {
 					var newEntry = {
 						description: 'Google',
 						url: 'https://www.google.com/',
@@ -318,11 +318,11 @@
 					}.bind(this)).then(done, done);
 				});
 
-				teardown(function () {
+				afterEach(function () {
 					PasswordService.clearInstances();
 				});
 
-				test('It should mark updated entries as volatile until they are actually persisted', function (done) {
+				it('should mark updated entries as volatile until they are actually persisted', function (done) {
 					var entry;
 
 					this.passwordService.put({
@@ -354,8 +354,8 @@
 				});
 			});
 
-			suite('updating entries', function () {
-				setup(function (done) {
+			describe('updating entries', function () {
+				beforeEach(function (done) {
 					this.passwordService = new PasswordService('existing_user', 'another_password');
 					this.passwordService.init().then(function () {
 						return this.passwordService.put({
@@ -372,7 +372,7 @@
 					}.bind(this)).then(done, done);
 				});
 
-				test('It should not create a new entry when updating an existing entry', function () {
+				it('should not create a new entry when updating an existing entry', function () {
 					var entries = this.passwordService.get();
 					assert.equal(
 						1, entries.length,
@@ -380,12 +380,12 @@
 					);
 				});
 
-				test('It should not save an empty password for an existing entry', function () {
+				it('should not save an empty password for an existing entry', function () {
 					var updatedEntry = this.passwordService.get()[0];
 					assert.ok(updatedEntry.password, 'Updating entries with an empty password doesn\'t actually save the empty password');
 				});
 
-				test('It should not use the old password an updated entry is saved with an empty password', function () {
+				it('should not use the old password an updated entry is saved with an empty password', function () {
 					var updatedEntry = this.passwordService.get()[0];
 					assert.notEqual(
 						'12345', updatedEntry.password,
@@ -393,7 +393,7 @@
 					);
 				});
 
-				test('It should save the updated properties when updating an entry', function () {
+				it('should save the updated properties when updating an entry', function () {
 					var updatedEntry = this.passwordService.get()[0];
 					assert.equal(
 						'mr_doe', updatedEntry.username,
@@ -401,7 +401,7 @@
 					);
 				});
 
-				test('It should mark updated entries as volatile until they are actually persisted', function (done) {
+				it('should mark updated entries as volatile until they are actually persisted', function (done) {
 					var entry = this.passwordService.get()[0];
 
 					assert.ok(
@@ -425,19 +425,19 @@
 					);
 				});
 
-				teardown(function () {
+				afterEach(function () {
 					MockedBackendService.reset();
 					PasswordService.clearInstances();
 				});
 			});
 
-			suite('undoing and redoing things', function () {
-				setup(function (done) {
+			describe('undoing and redoing things', function () {
+				beforeEach(function (done) {
 					this.passwordService = new PasswordService('existing_user', 'another_password');
 					return this.passwordService.init().then(done, done);
 				});
 
-				test('It should be able to undo and redo an insertion', function () {
+				it('should be able to undo and redo an insertion', function () {
 					assert.ok(
 						!this.passwordService.canUndo(),
 						'Initially, nothing can be undone.'
@@ -483,7 +483,7 @@
 					);
 				});
 
-				test('It should be able to undo and redo an update', function () {
+				it('should be able to undo and redo an update', function () {
 					var entry;
 
 					this.passwordService.put({
@@ -531,7 +531,7 @@
 					);
 				});
 
-				test('It should be able to undo and redo a deletion', function () {
+				it('should be able to undo and redo a deletion', function () {
 					var entry;
 
 					this.passwordService.put({
@@ -586,13 +586,13 @@
 					);
 				});
 
-				teardown(function () {
+				afterEach(function () {
 					MockedBackendService.reset();
 					PasswordService.clearInstances();
 				});
 			});
 
-			teardown(function () {
+			afterEach(function () {
 				Worker.restore();
 			});
 		});

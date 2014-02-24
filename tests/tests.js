@@ -9,7 +9,7 @@
 		'mocha'
 	], function (mocha) {
 		mocha.setup({
-			ui: 'tdd',
+			ui: 'bdd',
 			globals: [
 				'Worker'
 			]

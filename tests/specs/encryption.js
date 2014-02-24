@@ -7,18 +7,18 @@
 		'worker-mock',
 		'passio/encryption'
 	], function (assert, angular, Worker) {
-		suite('encryption', function () {
+		describe('encryption', function () {
 			var $injector, EncryptionService;
 
-			setup(function () {
+			beforeEach(function () {
 				angular.module('passio.encryption');
 				$injector = angular.injector(['passio.encryption', 'ng']);
 
 				EncryptionService = $injector.get('EncryptionService');
 			});
 
-			suite('encrypting and decrypting data', function () {
-				test('It should be able to decrypt encrypted data', function () {
+			describe('encrypting and decrypting data', function () {
+				it('should be able to decrypt encrypted data', function () {
 					var encryptionServiceOne, encryptionServiceTwo, plain, cipher;
 
 					encryptionServiceOne = new EncryptionService('secret_key');
@@ -33,7 +33,7 @@
 					);
 				});
 
-				test('It should fail to decrypt data which was encrypted with a different key', function () {
+				it('should fail to decrypt data which was encrypted with a different key', function () {
 					var encryptionServiceOne, encryptionServiceTwo, plain, cipher;
 
 					encryptionServiceOne = new EncryptionService('secret_key');
@@ -48,8 +48,8 @@
 				});
 			});
 
-			suite('generating authorization token', function () {
-				setup(function () {
+			describe('generating authorization token', function () {
+				beforeEach(function () {
 					Worker.init();
 					Worker.mock('scripts/passio/auth-token-worker.js', function () {
 						var passwords = {
@@ -67,7 +67,7 @@
 					});
 				});
 
-				test('It should call the authorization token worker with the right parameters', function (done) {
+				it('should call the authorization token worker with the right parameters', function (done) {
 					new EncryptionService('another_password').createAuthorization().then(function (auth) {
 						assert.strictEqual(
 							'48a7ae7a51262c17cbbf05eafb0a3490f7caa778', auth,
@@ -76,7 +76,7 @@
 					}).then(done, done);
 				});
 
-				teardown(function () {
+				afterEach(function () {
 					Worker.reset();
 				});
 			});
