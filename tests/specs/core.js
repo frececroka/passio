@@ -8,17 +8,14 @@
 		'worker-mock',
 		'passio/core',
 	], function (_, assert, angular, Worker) {
-		var $injector, $q;
-
-		angular.module('passio.core');
-		$injector = angular.injector(['passio.core', 'ng']);
-
-		$q = $injector.get('$q');
-
 		suite('core', function () {
-			var PasswordService, MockedBackendService;
+			var $injector, $q, PasswordService, MockedBackendService;
 
 			setup(function () {
+				angular.module('passio.core');
+				$injector = angular.injector(['passio.core', 'ng']);
+
+				$q = $injector.get('$q');
 				PasswordService = $injector.get('PasswordService');
 				MockedBackendService = $injector.get('restService');
 

@@ -7,15 +7,13 @@
 		'worker-mock',
 		'passio/encryption'
 	], function (assert, angular, Worker) {
-		var $injector;
-
-		angular.module('passio.encryption');
-		$injector = angular.injector(['passio.encryption', 'ng']);
-
 		suite('encryption', function () {
-			var EncryptionService;
+			var $injector, EncryptionService;
 
 			setup(function () {
+				angular.module('passio.encryption');
+				$injector = angular.injector(['passio.encryption', 'ng']);
+
 				EncryptionService = $injector.get('EncryptionService');
 			});
 
