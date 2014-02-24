@@ -205,8 +205,16 @@
 
 			suite('saving entries', function () {
 				setup(function (done) {
-					this.passwordService = new PasswordService('existing_user', 'another_password');
-					this.passwordService.init().then(done, done);
+					this.createPasswordService = function () {
+						var passwordService = new PasswordService('existing_user', 'another_password');
+						return passwordService.init().then(function () {
+							return passwordService;
+						});
+					};
+
+					this.createPasswordService().then(function (passwordService) {
+						this.passwordService = passwordService;
+					}.bind(this)).then(done, done);
 				});
 
 				test('It should save a new entry', function (done) {
@@ -331,7 +339,15 @@
 							!entry.volatile,
 							'The entry is not marked as volatile when persisted.'
 						);
-					}.bind(this)).then(done, done);
+
+						return this.createPasswordService();
+					}.bind(this)).then(function (passwordService) {
+						entry = passwordService.get()[0];
+						assert.ok(
+							!entry.volatile,
+							'The entry is not marked as volatile after restoring from the persistence layer.'
+						);
+					}).then(done, done);
 
 					entry = this.passwordService.get()[0];
 					assert.ok(

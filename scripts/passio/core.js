@@ -41,6 +41,15 @@
 
 				PasswordService.prototype = {
 					/**
+					 * A list of properties of individual entries that can be passed on to the persistence
+					 * layer. Some internal properties are not suited for persistence, for example the
+					 * 'volatile' property.
+					 *
+					 * @type {Array}
+					 */
+					persistableProperties: ['id', 'description', 'url', 'username', 'password'],
+
+					/**
 					 * Tries to obtain the neccessary information to read and write password entries for this
 					 * instance.
 					 *
@@ -116,7 +125,7 @@
 							'password': this.generatePassword(conf.passwordLength)
 						}, entry || {});
 
-						entry = _.pick(entry, 'id', 'description', 'url', 'username', 'password');
+						entry = _.pick(entry, this.persistableProperties);
 						entry.volatile = true;
 
 						if (!entry.id || options.forceCreate) {
@@ -383,13 +392,18 @@
 					 *                    is rejected when the update failed.
 					 */
 					updateUpstream: function () {
-						var ids, cipher;
+						var data, ids, cipher;
 
-						ids = _.map(this.data.passwords, function (p) {
+						data = _.clone(this.data);
+						data.passwords = _.map(data.passwords, function (e) {
+							return _.pick(e, this.persistableProperties);
+						}.bind(this));
+
+						ids = _.map(data.passwords, function (p) {
 							return p.id;
 						});
 
-						cipher = this.encryptionService.encrypt(this.data);
+						cipher = this.encryptionService.encrypt(data);
 						return storage.store(this.auth, this.username, cipher).then(function () {
 							this.encryptedData = cipher;
 
