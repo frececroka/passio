@@ -3,32 +3,30 @@
 
 	define([
 		'underscore',
-		'angular',
-		'passio/config',
-		'passio/rest',
-		'passio/encryption'
+		'angular'
 	], function (_, angular) {
 
-		var core = angular.module('passio.core', ['passio.rest', 'passio.encryption', 'passio.config']);
+		var core = angular.module('passio.core', []);
 
 		core.factory('PasswordService', [
 			'$q',
-			'config',
-			'restService',
-			'EncryptionServiceFactory',
-			function ($q, conf, storage, EncryptionServiceFactory) {
+			function ($q) {
 				/**
-				 * Creates a new, uninitialized instance of PasswordService using the given username and
-				 * password. To initialize this instance, the `init` method has to be called.
+				 * Creates a new, uninitialized instance of PasswordService using the given username. To
+				 * initialize this instance, the `init` method has to be called.
 				 *
-				 * @param {String} username  The username
-				 * @param {String} password  The password
+				 * @param {Object} options
+				 * @param {String} options.username  The username
+				 * @param {Object} options.encryptionService  The encryption service to use.
+				 * @param {Object} options.persistenceService  The persistence service to use.
 				 */
-				var PasswordService = function (username, password) {
-					this.username = username;
-					this.encryptionService = EncryptionServiceFactory.buildFromSecretKey(password);
+				var PasswordService = function (options) {
+					this.username = options.username;
 
-					PasswordService.instances[username] = this;
+					this.setEncryptionService(options.encryptionService);
+					this.setPersistenceService(options.persistenceService);
+
+					PasswordService.instances[this.username] = this;
 				};
 
 				PasswordService.instances = {};
@@ -51,6 +49,95 @@
 					persistableProperties: ['id', 'description', 'url', 'username', 'password'],
 
 					/**
+					 * The implementation of the encryption service to use. The default implementation resides
+					 * in the angular module "passio.encryption".
+					 *
+					 * Required is an instance, not a class.
+					 */
+					encryptionService: undefined,
+
+					/**
+					 * Sets the used encryption service.
+					 *
+					 * @param {Object} newEncryptionService  The new encryption service.
+					 */
+					setEncryptionService: function (newEncryptionService) {
+						if (!newEncryptionService) {
+							throw new Error('No encryption service given.');
+						}
+
+						this.encryptionService = newEncryptionService;
+					},
+
+					/**
+					 * Returns the encryption service currently in use.
+					 *
+					 * @return {Object} The encryption service in use.
+					 * @throws {ReferenceError} If no encryption service is set.
+					 */
+					getEncryptionService: function () {
+						return this.encryptionService;
+					},
+
+					/**
+					 * The implementation of the persistence service to use. An implementation for a
+					 * persistence service interacting with a REST backend can be found in the angular module
+					 * "passio.rest".
+					 *
+					 * Required is an instance, not a class.
+					 */
+					persistenceService: undefined,
+
+					/**
+					 * Sets the used persistence service.
+					 *
+					 * @param {Object} newPersistenceService  The new persistence service.
+					 */
+					setPersistenceService: function (newPersistenceService) {
+						if (!newPersistenceService.store) {
+							throw new Error('No persistence service given.');
+						}
+
+						this.persistenceService = newPersistenceService;
+					},
+
+					/**
+					 * Returns the persistence service currently in use.
+					 *
+					 * @return {Object} The persistence service in use.
+					 * @throws {ReferenceError} If no persistence service is set.
+					 */
+					getPersistenceService: function () {
+						return this.persistenceService;
+					},
+
+					/**
+					 * The length of a generated passwords. It is set to 15 by default.
+					 *
+					 * @type {Number}
+					 */
+					passwordLength: 15,
+
+					/**
+					 * Changes the length of generated passwords.
+					 *
+					 * @param {Number} newPasswordLength  The new length of generated passwords, in
+					 *                                    characters.
+					 */
+					setPasswordLength: function (newPasswordLength) {
+						this.passwordLength = newPasswordLength;
+					},
+
+					/**
+					 * Returns the length a generated password should have.
+					 *
+					 * @return {Number} The length a generated password should have.
+					 */
+					getPasswordLength: function () {
+						return this.passwordLength;
+					},
+
+					/**
 					 * Tries to obtain the neccessary information to read and write password entries for this
 					 * instance.
 					 *
@@ -58,12 +145,12 @@
 					 *                    gathered and which is rejected when the process failed.
 					 */
 					init: function () {
-						return this.encryptionService.createAuthorization().then(function (auth) {
+						return this.getEncryptionService().createAuthorization().then(function (auth) {
 							this.auth = auth;
-							return storage.retrieve(this.username);
+							return this.getPersistenceService().retrieve(this.username);
 						}.bind(this)).then(function (data) {
 							this.encryptedData = data;
-							this.data = this.encryptionService.decrypt(data);
+							this.data = this.getEncryptionService().decrypt(data);
 
 							// Older accounts don't have a undo and redo history.
 							this.data.undoHistory = this.data.undoHistory || [];
@@ -123,7 +210,7 @@
 							'description': '',
 							'url': '',
 							'username': '',
-							'password': this.generatePassword(conf.passwordLength)
+							'password': this.generatePassword()
 						}, entry || {});
 
 						entry = _.pick(entry, this.persistableProperties);
@@ -404,8 +491,8 @@
 							return p.id;
 						});
 
-						cipher = this.encryptionService.encrypt(data);
-						return storage.store(this.auth, this.username, cipher).then(function () {
+						cipher = this.getEncryptionService().encrypt(data);
+						return this.getPersistenceService().store(this.auth, this.username, cipher).then(function () {
 							this.encryptedData = cipher;
 
 							_.chain(this.data.passwords).filter(function (p) {
@@ -418,17 +505,15 @@
 
 					/**
 					 * Generates a random password consisting of characters chosen from a pool of 66
-					 * characters. The generated password will have the length given by `len`.
+					 * characters. The generated password will have the previously configured length.
 					 *
-					 * @param {Integer} len  The length of the generated password.
-					 *
-					 * @return {String}  A random 15-character password.
+					 * @return {String}  A randomly generated password.
 					 */
-					generatePassword: function (len) {
+					generatePassword: function () {
 						var characterPool = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_-=.';
 						var password = '';
 
-						while (password.length < len) {
+						while (password.length < this.getPasswordLength()) {
 							password += characterPool.charAt(Math.round(Math.random() * (characterPool.length - 1)));
 						}
 

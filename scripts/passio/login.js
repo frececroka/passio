@@ -3,20 +3,22 @@
 
 	define([
 		'angular',
-		'passio/core'
+		'passio/factories'
 	], function (angular) {
 
-		var login = angular.module('passio.login', ['passio.core']);
+		var login = angular.module('passio.login', ['passio.factories']);
 
 		login.controller('LoginController', [
 			'$scope',
 			'$location',
-			'PasswordService',
-			function ($scope, $location, PasswordService) {
+			'PasswordServiceFactory',
+			function ($scope, $location, PasswordServiceFactory) {
 				$scope.doLogin = function () {
 					$scope.loginInProgress = true;
 
-					new PasswordService($scope.user.name, $scope.user.password).init().then(function () {
+					PasswordServiceFactory.create(
+						$scope.user.name, $scope.user.password
+					).then(function () {
 						$location.path('/' + $scope.user.name).replace();
 						$scope.loginInProgress = false;
 					}, function () {

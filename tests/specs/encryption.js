@@ -4,7 +4,6 @@
 	define([
 		'chai',
 		'angular',
-		'worker-mock',
 		'passio/encryption'
 	], function (chai, angular, Worker) {
 		var assert = chai.assert;
@@ -13,9 +12,7 @@
 			var $injector, EncryptionService;
 
 			beforeEach(function () {
-				angular.module('passio.encryption');
 				$injector = angular.injector(['passio.encryption', 'ng']);
-
 				EncryptionService = $injector.get('EncryptionService');
 			});
 
@@ -23,8 +20,13 @@
 				it('should be able to decrypt encrypted data', function () {
 					var encryptionServiceOne, encryptionServiceTwo, plain, cipher;
 
-					encryptionServiceOne = new EncryptionService('secret_key');
-					encryptionServiceTwo = new EncryptionService('secret_key');
+					encryptionServiceOne = new EncryptionService({
+						secretKey: 'secret_key'
+					});
+
+					encryptionServiceTwo = new EncryptionService({
+						secretKey: 'secret_key'
+					});
 
 					plain = 'This is the plain text';
 					cipher = encryptionServiceOne.encrypt(plain);
@@ -38,8 +40,13 @@
 				it('should fail to decrypt data which was encrypted with a different key', function () {
 					var encryptionServiceOne, encryptionServiceTwo, plain, cipher;
 
-					encryptionServiceOne = new EncryptionService('secret_key');
-					encryptionServiceTwo = new EncryptionService('different_secret_key');
+					encryptionServiceOne = new EncryptionService({
+						secretKey: 'secret_key'
+					});
+
+					encryptionServiceTwo = new EncryptionService({
+						secretKey: 'different_secret_key'
+					});
 
 					plain = 'This is the plain text';
 					cipher = encryptionServiceOne.encrypt(plain);
@@ -47,39 +54,6 @@
 					assert.throws(function () {
 						encryptionServiceTwo.decrypt(cipher);
 					});
-				});
-			});
-
-			describe('generating authorization token', function () {
-				beforeEach(function () {
-					Worker.init();
-					Worker.mock('scripts/passio/auth-token-worker.js', function () {
-						var passwords = {
-							'another_password': '48a7ae7a51262c17cbbf05eafb0a3490f7caa778'
-						};
-
-						this.onmessage = function (m) {
-							var authToken = 'invalid';
-							if (m.data.authIterations === 1000) {
-								authToken = passwords[m.data.password];
-							}
-
-							this.postMessage(authToken);
-						};
-					});
-				});
-
-				it('should call the authorization token worker with the right parameters', function (done) {
-					new EncryptionService('another_password').createAuthorization().then(function (auth) {
-						assert.strictEqual(
-							'48a7ae7a51262c17cbbf05eafb0a3490f7caa778', auth,
-							'The authorization token worker was called with the right parameters.'
-						);
-					}).then(done, done);
-				});
-
-				afterEach(function () {
-					Worker.reset();
 				});
 			});
 		});

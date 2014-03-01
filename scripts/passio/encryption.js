@@ -3,17 +3,32 @@
 
 	define([
 		'angular',
-		'crypto/aes',
-		'passio/config'
+		'crypto/aes'
 	], function (angular, aes) {
-		var encryption = angular.module('passio.encryption', ['passio.config']);
+		var encryption = angular.module('passio.encryption', []);
 
 		encryption.factory('EncryptionService', [
 			'$q',
-			'config',
-			function ($q, conf) {
-				var EncryptionService = function (secretKey) {
-					this.secretKey = secretKey;
+			function ($q) {
+				/**
+				 * Creates a new `EncryptionService` to decrypt and encrypt values.
+				 *
+				 * @param {Object} options
+				 * @param {String} options.secretKey  The secret key to use for encryption and decryption
+				 *                                    of data.
+				 * @param {Number} [options.authIterations=1000]  The number of rounds the hash function
+				 *                                                should be applied when creating the
+				 *                                                authorization token.
+				 */
+				var EncryptionService = function (options) {
+					if (!options.secretKey) {
+						throw new Error('The secret key is required.');
+					}
+
+					options.authIterations = options.authIterations || 1000;
+
+					this.secretKey = options.secretKey;
+					this.authIterations = options.authIterations;
 				};
 
 				/**
@@ -28,7 +43,7 @@
 					var authWorker = new Worker('scripts/passio/auth-token-worker.js');
 					authWorker.postMessage({
 						password: this.secretKey,
-						authIterations: conf.authIterations
+						authIterations: this.authIterations
 					});
 
 					authWorker.onmessage = function (m) {
@@ -63,17 +78,6 @@
 				};
 
 				return EncryptionService;
-			}
-		]);
-
-		encryption.factory('EncryptionServiceFactory', [
-			'EncryptionService',
-			function (EncryptionService) {
-				return {
-					buildFromSecretKey: function (secretKey) {
-						return new EncryptionService(secretKey);
-					}
-				};
 			}
 		]);
 	});

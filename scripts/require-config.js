@@ -6,7 +6,6 @@ requirejs.config({
 		'angular-route': 'vendor/angular-route',
 		'jquery': 'vendor/jquery',
 		'crypto': 'vendor/crypto',
-		'worker-mock': 'vendor/worker-mock',
 		'chai': 'vendor/chai',
 		'sinon': 'vendor/sinon',
 		'mocha': 'vendor/mocha',
