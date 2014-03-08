@@ -2,25 +2,11 @@
 	'use strict';
 
 	requirejs.config({
-		baseUrl: '../scripts'
+		baseUrl: '/base/scripts'
 	});
 
 	require([
-		'mocha'
-	], function (mocha) {
-		mocha.setup({
-			ui: 'bdd',
-			globals: [
-				'Worker'
-			]
-		});
-
-		require([
-			'specs/core',
-			'specs/encryption'
-		], function () {
-			mocha.checkLeaks();
-			mocha.run();
-		});
-	});
+		'specs/core',
+		'specs/encryption'
+	], window.__karma__.start);
 }());

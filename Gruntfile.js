@@ -48,7 +48,6 @@ module.exports = function(grunt) {
 					{ src: ['bower_components/cryptojs/lib/SHA1.js'], dest: 'dist/scripts/vendor/crypto/sha1.js' },
 					{ src: ['bower_components/cryptojs/lib/SHA256.js'], dest: 'dist/scripts/vendor/crypto/sha256.js' },
 					{ src: ['bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff'], dest: 'dist/fonts/glyphicons-halflings-regular.woff' },
-					{ src: ['bower_components/mocha/mocha.js'], dest: 'dist/scripts/vendor/mocha.js' },
 					{ src: ['bower_components/chai/chai.js'], dest: 'dist/scripts/vendor/chai.js' },
 					{ src: ['bower_components/sinon/index.js'], dest: 'dist/scripts/vendor/sinon.js' },
 					{
@@ -64,6 +63,28 @@ module.exports = function(grunt) {
 				]
 			}
 		},
+		karma: {
+			options: {
+				basePath: 'dist',
+				frameworks: ['mocha', 'requirejs'],
+				files: [
+					'scripts/require-config.js',
+					'tests/tests.js',
+					{ pattern: 'scripts/vendor/*.js', included: false },
+					{ pattern: 'scripts/vendor/**/*.js', included: false },
+					{ pattern: 'scripts/*.js', included: false },
+					{ pattern: 'scripts/**/*.js', included: false },
+					{ pattern: 'tests/**/*.js', included: false }
+				],
+				browsers: ['Firefox']
+			},
+			dev: {
+				background: true
+			},
+			ci: {
+				singleRun: true
+			}
+		},
 		watch: {
 			dev: {
 				files: [
@@ -73,7 +94,7 @@ module.exports = function(grunt) {
 					'tests/**',
 					'index.html'
 				],
-				tasks: ['dev']
+				tasks: ['dev', 'karma:dev:run']
 			}
 		},
 		connect: {
@@ -86,13 +107,16 @@ module.exports = function(grunt) {
 	});
 
 	grunt.registerTask('dev', ['clean:pre', 'sass:dev', 'copy:dev', 'cssmin:vendor']);
-	grunt.registerTask('server', ['dev', 'connect', 'watch']);
+	grunt.registerTask('server', ['dev', 'connect', 'karma:dev', 'watch']);
+
+	grunt.registerTask('test', ['dev', 'karma:ci'])
 
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-sass');
 	grunt.loadNpmTasks('grunt-contrib-cssmin');
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
+	grunt.loadNpmTasks('grunt-karma');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-contrib-connect');
 
