@@ -67,6 +67,7 @@ module.exports = function(grunt) {
 			options: {
 				basePath: 'dist',
 				frameworks: ['mocha', 'requirejs'],
+				reporters: ['dots'],
 				files: [
 					'scripts/require-config.js',
 					'tests/tests.js',
