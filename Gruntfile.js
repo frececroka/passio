@@ -24,9 +24,6 @@ module.exports = function(grunt) {
 				files: {
 					'dist/styles/vendor.css': [
 						'bower_components/bootstrap/dist/css/bootstrap.css'
-					],
-					'dist/styles/tests.css': [
-						'bower_components/mocha/mocha.css'
 					]
 				}
 			}
