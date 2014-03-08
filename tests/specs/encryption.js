@@ -4,6 +4,7 @@
 	define([
 		'chai',
 		'angular',
+		'mocks/base',
 		'passio/encryption'
 	], function (chai, angular, Worker) {
 		var assert = chai.assert;
@@ -12,7 +13,12 @@
 			var $injector, EncryptionService;
 
 			beforeEach(function () {
-				$injector = angular.injector(['passio.encryption', 'ng']);
+				$injector = angular.injector([
+					'ng',
+					'passio.encryption',
+					'passio.mocks.base'
+				]);
+
 				EncryptionService = $injector.get('EncryptionService');
 			});
 

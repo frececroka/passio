@@ -6,6 +6,7 @@
 		'chai',
 		'sinon',
 		'angular',
+		'mocks/base',
 		'mocks/persistence',
 		'passio/core',
 	], function (_, chai, sinon, angular) {
@@ -17,10 +18,11 @@
 
 			beforeEach(function () {
 				$injector = angular.injector([
+					'ng',
 					'passio.core',
-					'passio.mocks.persistence',
 					'passio.encryption',
-					'ng'
+					'passio.mocks.persistence',
+					'passio.mocks.base'
 				]);
 
 				$q = $injector.get('$q');
@@ -197,6 +199,35 @@
 						passwordService.get(), 0,
 						'passwordService.get() returns the correct data.'
 					);
+				});
+
+				it('should fail if the wrong password is used', function (done) {
+					var passwordServiceOne, passwordServiceTwo;
+
+					passwordServiceOne = createPasswordService(
+						'some_user', 'password',
+						'5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8'
+					);
+
+					passwordServiceOne.init().then(function () {
+						return passwordServiceOne.put({
+							description: 'CodingBat',
+							url: 'http://codingbat.com/',
+							username: 'some_user'
+						});
+					}).then(function () {
+						passwordServiceTwo = createPasswordService(
+							'some_user', 'wrong_password',
+							'df962c307233352659ecd3f940e40470'
+						);
+
+						passwordServiceTwo.setPersistenceService(passwordServiceOne.getPersistenceService());
+						return passwordServiceTwo.init();
+					}).then(function () {
+						assert.fail('The initialization with a wrong password fails.');
+					}, function () {
+						done();
+					});
 				});
 
 				afterEach(function () {
