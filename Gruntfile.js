@@ -24,6 +24,9 @@ module.exports = function(grunt) {
 				files: {
 					'dist/styles/vendor.css': [
 						'bower_components/bootstrap/dist/css/bootstrap.css'
+					],
+					'dist/styles/tests.css': [
+						'bower_components/mocha/mocha.css'
 					]
 				}
 			}
@@ -45,6 +48,7 @@ module.exports = function(grunt) {
 					{ src: ['bower_components/cryptojs/lib/SHA1.js'], dest: 'dist/scripts/vendor/crypto/sha1.js' },
 					{ src: ['bower_components/cryptojs/lib/SHA256.js'], dest: 'dist/scripts/vendor/crypto/sha256.js' },
 					{ src: ['bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff'], dest: 'dist/fonts/glyphicons-halflings-regular.woff' },
+					{ src: ['bower_components/mocha/mocha.js'], dest: 'dist/scripts/vendor/mocha.js' },
 					{ src: ['bower_components/chai/chai.js'], dest: 'dist/scripts/vendor/chai.js' },
 					{ src: ['bower_components/sinon/index.js'], dest: 'dist/scripts/vendor/sinon.js' },
 					{
@@ -67,7 +71,7 @@ module.exports = function(grunt) {
 				reporters: ['dots'],
 				files: [
 					'scripts/require-config.js',
-					'tests/tests.js',
+					'tests/tests-karma.js',
 					{ pattern: 'scripts/vendor/*.js', included: false },
 					{ pattern: 'scripts/vendor/**/*.js', included: false },
 					{ pattern: 'scripts/*.js', included: false },

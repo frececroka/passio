@@ -1,12 +1,8 @@
 (function () {
 	'use strict';
 
-	requirejs.config({
-		baseUrl: '/base/scripts'
-	});
-
-	require([
+	define([
 		'specs/core',
 		'specs/encryption'
-	], window.__karma__.start);
+	], function () {});
 }());

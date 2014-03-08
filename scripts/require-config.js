@@ -9,6 +9,7 @@ requirejs.config({
 		'chai': 'vendor/chai',
 		'sinon': 'vendor/sinon',
 		'mocha': 'vendor/mocha',
+		'tests': '../tests/tests',
 		'specs': '../tests/specs',
 		'mocks': '../tests/mocks',
 		'text': 'vendor/require/text'
