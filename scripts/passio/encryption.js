@@ -15,10 +15,9 @@
 				 *
 				 * @param {Object} options
 				 * @param {String} options.secretKey  The secret key to use for encryption and decryption
-				 *                                    of data.
+				 *     of data.
 				 * @param {Number} [options.authIterations=1000]  The number of rounds the hash function
-				 *                                                should be applied when creating the
-				 *                                                authorization token.
+				 *     should be applied when creating the authorization token.
 				 */
 				var EncryptionService = function (options) {
 					if (!options.secretKey) {
@@ -35,7 +34,7 @@
 				 * Creates the authorization neccessary to update the upstream datastore.
 				 *
 				 * @return {Promise}  A promise which is resolved with the generated authorization token
-				 *                    as soon as it is available.
+				 *     as soon as it is available.
 				 */
 				EncryptionService.prototype.createAuthorization = function() {
 					var deferred = $q.defer();

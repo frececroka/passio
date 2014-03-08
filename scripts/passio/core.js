@@ -122,7 +122,7 @@
 					 * Changes the length of generated passwords.
 					 *
 					 * @param {Number} newPasswordLength  The new length of generated passwords, in
-					 *                                    characters.
+					 *     characters.
 					 */
 					setPasswordLength: function (newPasswordLength) {
 						this.passwordLength = newPasswordLength;
@@ -142,7 +142,7 @@
 					 * instance.
 					 *
 					 * @return {Promise}  A promise which is resolved when all neccessary information are
-					 *                    gathered and which is rejected when the process failed.
+					 *     gathered and which is rejected when the process failed.
 					 */
 					init: function () {
 						return this.getEncryptionService().createAuthorization().then(function (auth) {
@@ -188,14 +188,14 @@
 					 * @param {String} [entry.url]  The URL of the page associated with this password.
 					 * @param {String} [entry.username]  The username associated with this password.
 					 * @param {String} [entry.password]  The actual password. If it is empty, a random
-					 *                                   password will be generated.
+					 *     password will be generated.
 					 * @param {Object} [options]  An object modifying the behaviour of this function.
 					 * @param {Array} [options.historyTarget]  A custom history list where the action should
-					 *                                         be appended to.
+					 *     be appended to.
 					 * @param {Boolean} [options.keepRedo]  Whether the redo history should be kept or not.
 					 *
 					 * @return {Promise} A promise which will be resolved if the password was successfully
-					 *                   saved or rejected if not.
+					 *     saved or rejected if not.
 					 */
 					put: function (entry, options) {
 						options = options || {};
@@ -269,10 +269,10 @@
 					 * persisted. If an ID is given, only the password with the given ID is returned.
 					 *
 					 * @param {Integer} [id] The ID of the password to return. If ommitted, all passwords are
-					 *                       returned.
+					 *     returned.
 					 *
 					 * @return {Array|Object}  An array containing all stored passwords (If no ID is given) or
-					 *                         the password with the given ID.
+					 *     the password with the given ID.
 					 */
 					get: function (id) {
 						if (id) {
@@ -311,11 +311,11 @@
 					 * @param {Integer} id  The ID of the password to delete.
 					 * @param {Object} [options]  An object modifying the behaviour of this function.
 					 * @param {Array} [options.historyTarget]  A custom history list where the action should
-					 *                                         be appended to.
+					 *     be appended to.
 					 * @param {Boolean} [options.keepRedo]  Whether the redo history should be kept or not.
 					 *
 					 * @return {Promise}  A promise which is resolved when the password has been deleted and
-					 *                    which is rejected when the deletion was not successful.
+					 *     which is rejected when the deletion was not successful.
 					 */
 					unput: function (id, options) {
 						options = options || {};
@@ -369,9 +369,9 @@
 					 * @param {Integer} action.id  The ID of the changed password.
 					 * @param {Object} [options]  An object influencing the behaviour of this function.
 					 * @param {Array} [options.historyTarget]  The history list the action should be appended
-					 *                                         to. Defaults to `this.data.undoHistory`.
+					 *     to. Defaults to `this.data.undoHistory`.
 					 * @param {Boolean} [options.keepRedo]  Whether to keep the redo history or not. Defaults
-					 *                                      to `false`.
+					 *     to `false`.
 					 */
 					addHistory: function (action, historyTarget, options) {
 						options = options || {};
@@ -386,14 +386,12 @@
 					 * Revert the change described by `action`.
 					 *
 					 * @param {Object} action  An object describing a change. See the documentation of
-					 *                         `addHistory` for further information about this object.
+					 *     `addHistory` for further information about this object.
 					 * @param {Object} [options]  An object influencing the behaviour of this function.
 					 * @param {Array} [options.historyTarget]  The history list to which the inversed action
-					 *                                         is appended. For example if we are reverting a
-					 *                                         change from the undo history, a new history
-					 *                                         entry which would undo the undo can be appended
-					 *                                         to the redo history. This options defaults to
-					 *                                         the undo history.
+					 *     is appended. For example if we are reverting a change from the undo history, a new
+					 *     history entry which would undo the undo can be appended to the redo history. This
+					 *     options defaults to the undo history.
 					 *
 					 * @return {Promise}  A promise which is resolved when the action is reverted and saved.
 					 */
@@ -443,7 +441,7 @@
 					 * Undoes the latest action.
 					 *
 					 * @return {Promise}  A promise which is resolved when the latest action is undone and
-					 *                    saved.
+					 *     saved.
 					 */
 					undo: function () {
 						if (this.canUndo()) return this.revert(this.data.undoHistory.pop(), {
@@ -465,7 +463,7 @@
 					 * Redoes the latest undone action.
 					 *
 					 * @return {Promise}  A promise which is resolved when the latest undo is undone and
-					 *                    saved.
+					 *     saved.
 					 */
 					redo: function () {
 						if (this.canRedo()) return this.revert(this.data.redoHistory.pop(), {
@@ -477,7 +475,7 @@
 					 * Updates the upstream datastore with the data from `this.data`.
 					 *
 					 * @return {Promise}  A promise which is resolved when the update was successful and which
-					 *                    is rejected when the update failed.
+					 *     is rejected when the update failed.
 					 */
 					updateUpstream: function () {
 						var data, ids, cipher;

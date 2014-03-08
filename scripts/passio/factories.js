@@ -30,7 +30,7 @@
 					 * @param  {String} password  The password to use.
 					 *
 					 * @return {Promise} A promise which is resolved when the password service is created and
-					 *                   initialized.
+					 *     initialized.
 					 */
 					create: function (username, password) {
 						var passwordService;

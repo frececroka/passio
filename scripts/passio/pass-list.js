@@ -70,9 +70,9 @@
 						$scope.error = true;
 					});
 
-					// This call to updateData shows the submitted password immediately. The saved password will have
-					// the volatile property though. The second call to updateDate (after the promise has been resolved)
-					// will remove this volatile property.
+					// This call to updateData shows the submitted password immediately. The saved password
+					// will have the volatile property though. The second call to updateDate (after the
+					// promise has been resolved) will remove this volatile property.
 					updateData();
 				};
 
