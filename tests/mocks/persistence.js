@@ -10,10 +10,10 @@
 		passioMocks.service('MemoryPersistenceService', [
 			'$q',
 			function ($q) {
-				var MemoryPersistenceService = function () {};
-
-				MemoryPersistenceService.prototype.storage = {};
-				MemoryPersistenceService.prototype.authorizationTokens = {};
+				var MemoryPersistenceService = function () {
+					this.storage = {};
+					this.authorizationTokens = {};
+				};
 
 				MemoryPersistenceService.prototype.store = function (auth, key, value) {
 					var deferred = $q.defer();
