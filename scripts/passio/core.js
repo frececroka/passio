@@ -270,7 +270,7 @@
 								entry.modified = entry.password !== p.password ? new Date().getTime() : p.modified;
 								entry.created = p.created;
 
-								['description', 'url', 'username', 'password'].forEach(function (key) {
+								this.persistableProperties.forEach(function (key) {
 									if (entry[key] !== p[key]) {
 										historyEntry.properties.push({
 											key: key,
@@ -282,7 +282,7 @@
 
 								passwords[i] = entry;
 							}
-						});
+						}.bind(this));
 
 						this.addHistory(historyEntry, options.historyTarget, { keepRedo: options.keepRedo });
 					},
