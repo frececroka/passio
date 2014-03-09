@@ -217,51 +217,74 @@
 						entry.volatile = true;
 
 						if (!entry.id || options.forceCreate) {
-							if (!entry.id) {
-								entry.id = this.data.nextId;
-								this.data.nextId += 1;
-
-								entry.created = new Date().getTime();
-								entry.modified = entry.created;
-							}
-
-							this.data.passwords.push(entry);
-
-							this.addHistory({
-								action: 'create',
-								id: entry.id
-							}, options.historyTarget, { keepRedo: options.keepRedo });
+							this.create(entry, options);
 						} else {
-							var historyEntry = {
-								action: 'update',
-								id: entry.id,
-								properties: []
-							};
-
-							_.each(this.data.passwords, function (p, i, passwords) {
-								if (p.id === entry.id) {
-									// we update the modified time if the password was changed
-									entry.modified = entry.password !== p.password ? new Date().getTime() : p.modified;
-									entry.created = p.created;
-
-									['description', 'url', 'username', 'password'].forEach(function (key) {
-										if (entry[key] !== p[key]) {
-											historyEntry.properties.push({
-												key: key,
-												before: p[key],
-												after: entry[key]
-											});
-										}
-									});
-
-									passwords[i] = entry;
-								}
-							});
-
-							this.addHistory(historyEntry, options.historyTarget, { keepRedo: options.keepRedo });
+							this.update(entry, options);
 						}
 
 						return this.updateUpstream();
+					},
+
+					/**
+					 * Creates the given entry. If the entry has no `id` property, a unique ID is created by
+					 * this function. This method is not to be used outside of this class.
+					 *
+					 * @param  {Object} entry  The entry to create.
+					 * @param  {Object} options  Refer to the documentation of `PasswordService.put` for a
+					 *     list of possible options.
+					 */
+					create: function (entry, options) {
+						if (!entry.id) {
+							entry.id = this.data.nextId;
+							this.data.nextId += 1;
+
+							entry.created = new Date().getTime();
+							entry.modified = entry.created;
+						}
+
+						this.data.passwords.push(entry);
+
+						this.addHistory({
+							action: 'create',
+							id: entry.id
+						}, options.historyTarget, { keepRedo: options.keepRedo });
+					},
+
+					/**
+					 * Updates the given entry. This method is not to be used outside of this class.
+					 *
+					 * @param  {Object} entry  The entry to update.
+					 * @param  {Object} options  Refer to the documentation of `PasswordService.put` for a
+					 *     list of possible options.
+					 */
+					update: function (entry, options) {
+						var historyEntry = {
+							action: 'update',
+							id: entry.id,
+							properties: []
+						};
+
+						_.each(this.data.passwords, function (p, i, passwords) {
+							if (p.id === entry.id) {
+								// we update the modified time if the password was changed
+								entry.modified = entry.password !== p.password ? new Date().getTime() : p.modified;
+								entry.created = p.created;
+
+								['description', 'url', 'username', 'password'].forEach(function (key) {
+									if (entry[key] !== p[key]) {
+										historyEntry.properties.push({
+											key: key,
+											before: p[key],
+											after: entry[key]
+										});
+									}
+								});
+
+								passwords[i] = entry;
+							}
+						});
+
+						this.addHistory(historyEntry, options.historyTarget, { keepRedo: options.keepRedo });
 					},
 
 					/**
