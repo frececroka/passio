@@ -289,27 +289,11 @@
 
 					/**
 					 * Obtains a list of all currently stored passwords. Changes to this array are not
-					 * persisted. If an ID is given, only the password with the given ID is returned.
+					 * persisted.
 					 *
-					 * @param {Integer} [id] The ID of the password to return. If ommitted, all passwords are
-					 *     returned.
-					 *
-					 * @return {Array|Object}  An array containing all stored passwords (If no ID is given) or
-					 *     the password with the given ID.
+					 * @return {Array}  An array containing all stored passwords.
 					 */
-					get: function (id) {
-						if (id) {
-							var entry = _.filter(this.data.passwords, function (d) {
-								return d.id === id;
-							});
-
-							if (entry.length) {
-								return _.clone(entry[0]);
-							}
-
-							return null;
-						}
-
+					get: function () {
 						var clonedData = [];
 
 						_.each(this.data.passwords, function (d) {
@@ -317,6 +301,25 @@
 						});
 
 						return clonedData;
+					},
+
+					/**
+					 * Returns the entry with the given ID, or null if no such entry exists.
+					 *
+					 * @param {Integer} [id] The ID of the password to return.
+					 *
+					 * @return {Object}  The entry with the given ID.
+					 */
+					getById: function (id) {
+						var entry = _.filter(this.data.passwords, function (d) {
+							return d.id === id;
+						});
+
+						if (entry.length) {
+							return _.clone(entry[0]);
+						}
+
+						return null;
 					},
 
 					/**
@@ -432,7 +435,7 @@
 								});
 
 							case 'update':
-								var entry = this.get(action.id);
+								var entry = this.getById(action.id);
 								action.properties.forEach(function (p) {
 									entry[p.key] = p.before;
 								});

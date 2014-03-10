@@ -464,14 +464,14 @@
 
 					entry.url = 'https://www.google.com.au/';
 					passwordService.put(entry).then(function () {
-						entry = passwordService.get(entry.id);
+						entry = passwordService.getById(entry.id);
 						assert.notOk(
 							entry.volatile,
 							'The entry is not marked as volatile when persisted.'
 						);
 					}).then(done, done);
 
-					entry = passwordService.get(entry.id);
+					entry = passwordService.getById(entry.id);
 					assert.ok(
 						entry.volatile,
 						'The entry is marked as volatile when not persisted.'
