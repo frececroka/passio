@@ -23,7 +23,7 @@
 
 				var updateData = function () {
 					$scope.passwords = $scope.searchQuery ?
-						passwordService.getBySearch($scope.searchQuery) :
+						passwordService.getBySearch($scope.searchQuery).slice(0, 5) :
 						passwordService.get();
 
 					$scope.rawData = passwordService.getRaw();
