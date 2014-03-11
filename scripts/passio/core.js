@@ -330,7 +330,9 @@
 						}
 
 						rank = function (entry, properties, q) {
-							var rank = function (haystack, needle) {
+							var rank, ranks;
+
+							rank = function (haystack, needle) {
 								var regex, match;
 
 								haystack = String(haystack).toLowerCase();
@@ -351,21 +353,19 @@
 								return match[0].length;
 							};
 
-							return _(properties).reject(function (p) {
+							ranks = _.chain(properties).reject(function (p) {
 								return p === 'password';
-							}).reduce(function(bestRank, p) {
-								var currentRank = rank(entry[p], q);
+							}).map(function(p) {
+								return rank(entry[p], q);
+							}).reject(function (r) {
+								return r === 0;
+							}).value();
 
-								if (!currentRank) {
-									return bestRank;
-								}
+							if (!ranks.length) {
+								return 0;
+							}
 
-								if (!bestRank) {
-									return currentRank;
-								}
-
-								return _.min([currentRank, bestRank]);
-							}, 0);
+							return _.min(ranks);
 						};
 
 						properties = this.persistableProperties;
