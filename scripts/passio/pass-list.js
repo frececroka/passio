@@ -22,12 +22,18 @@
 				}
 
 				var updateData = function () {
-					$scope.passwords = passwordService.get();
+					$scope.passwords = $scope.searchQuery ?
+						passwordService.getBySearch($scope.searchQuery) :
+						passwordService.get();
+
 					$scope.rawData = passwordService.getRaw();
 				};
 
 				updateData();
 				$scope.edit = {};
+
+				$scope.searchQuery = '';
+				$scope.$watch('searchQuery', updateData);
 
 				$scope.canUndo = function () {
 					return passwordService.canUndo();

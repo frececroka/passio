@@ -322,6 +322,44 @@
 						return null;
 					},
 
+					getBySearch: function (q) {
+						var matches, doesMatch;
+
+						matches = [];
+
+						if (!q) {
+							return matches;
+						}
+
+						doesMatch = function (entry, properties, q) {
+							var doesMatch = function (haystack, needle) {
+								var regex;
+
+								haystack = String(haystack).toLowerCase();
+								needle = String(needle).toLowerCase();
+
+								// Create a RegEx for fuzzy-matching. If the needle is "abcde", the regex will be
+								// "a.*b.*c.*d".
+								regex = new RegExp(needle.split('').join('.*'));
+								return haystack.match(regex);
+							};
+
+							return _(properties).reject(function (p) {
+								return p === 'password';
+							}).reduce(function(isMatch, p) {
+								return isMatch || doesMatch(entry[p], q);
+							}, false);
+						};
+
+						_.each(this.get(), function (e) {
+							if (doesMatch(e, this.persistableProperties, q)) {
+								matches.push(e);
+							}
+						}.bind(this));
+
+						return matches;
+					},
+
 					/**
 					 * Returns the raw encrypted data.
 					 *

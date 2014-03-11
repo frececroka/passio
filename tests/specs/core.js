@@ -649,6 +649,94 @@
 				});
 			});
 
+			describe('searching for entries', function () {
+				var passwordService;
+
+				beforeEach(function (done) {
+					passwordService = createPasswordService(
+						'some_user', 'another_password',
+						'48a7ae7a51262c17cbbf05eafb0a3490f7caa778'
+					);
+
+					passwordService.init().then(function () {
+						return passwordService.put({
+							description: 'Google',
+							url: 'https://www.google.com/',
+							username: 'eric',
+							password: 'do_not_search_for_this_password'
+						});
+					}).then(function () {
+						return passwordService.put({
+							description: 'Amazon',
+							url: 'https://www.amazon.com.au/',
+							username: 'john_doe',
+							password: '12345'
+						});
+					}).then(function () {
+						return passwordService.put({
+							description: 'GitHub',
+							// We omit the URL for a purpose, because we want to test that searching for "github"
+							// (lowercase) still returns the entry with the description "GitHub" (mixed case).
+							// Including the URL somehow defeats this purpose, because the URL includes the
+							// lowercase "github".
+							username: 'mr_mattingly'
+						});
+					}).then(function () {
+						return passwordService.put({
+							description: 'CodingBat',
+							url: 'http://codingbat.com/',
+							username: 'some_user'
+						});
+					}).then(function () {
+						return passwordService.put({
+							description: 'Criticker',
+							url: 'http://www.criticker.com/',
+							username: 'raymond_mattingly',
+							password: '12345'
+						});
+					}).then(done, done);
+				});
+
+				it('should find nothing when search for the emtpy string', function () {
+					assert.lengthOf(
+						passwordService.getBySearch(''), 0,
+						'A search for an empty string returns no results'
+					);
+				});
+
+				it('should find the GitHub account even if the capitalization does not match', function () {
+					assert.strictEqual(
+						passwordService.getBySearch('github')[0].description, 'GitHub',
+						'Searching for "github" returns the GitHub account'
+					);
+				});
+
+				it('should not search for actual passwords', function () {
+					assert.lengthOf(
+						passwordService.getBySearch('do_not_search_for_this_password'), 0,
+						'Search for a password does not return the entry containing the password'
+					);
+				});
+
+				it('should be able find more than one result', function () {
+					assert.lengthOf(
+						passwordService.getBySearch('mattingly'), 2,
+						'It is able to find more than one result'
+					);
+				});
+
+				it('should perform fuzzy-matching', function () {
+					assert.lengthOf(
+						passwordService.getBySearch('raymatti'), 1,
+						'Searching for "raymatti" returns the entry with the username "raymond_mattingly"'
+					);
+				});
+
+				afterEach(function () {
+					PasswordService.clearInstances();
+				});
+			});
+
 			afterEach(function () {
 				PasswordService.clearInstances();
 			});
