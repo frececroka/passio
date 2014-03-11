@@ -111,7 +111,7 @@ module.exports = function(grunt) {
 	grunt.registerTask('dev', ['clean:pre', 'sass:dev', 'copy:dev', 'cssmin:vendor']);
 	grunt.registerTask('server', ['dev', 'connect', 'karma:dev', 'watch']);
 
-	grunt.registerTask('test', ['dev', 'karma:ci'])
+	grunt.registerTask('test', ['karma:ci']);
 
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-sass');
