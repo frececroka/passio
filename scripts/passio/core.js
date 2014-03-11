@@ -323,41 +323,65 @@
 					},
 
 					getBySearch: function (q) {
-						var matches, doesMatch;
-
-						matches = [];
+						var rank, properties, entries;
 
 						if (!q) {
-							return matches;
+							return [];
 						}
 
-						doesMatch = function (entry, properties, q) {
-							var doesMatch = function (haystack, needle) {
-								var regex;
+						rank = function (entry, properties, q) {
+							var rank = function (haystack, needle) {
+								var regex, match;
 
 								haystack = String(haystack).toLowerCase();
 								needle = String(needle).toLowerCase();
 
 								// Create a RegEx for fuzzy-matching. If the needle is "abcde", the regex will be
-								// "a.*b.*c.*d".
-								regex = new RegExp(needle.split('').join('.*'));
-								return haystack.match(regex);
+								// "a.*?b.*?c.*?d". We do not want to match greedily, hence the questionmark.
+								regex = new RegExp(needle.split('').join('.*?'));
+								match = regex.exec(haystack);
+
+								if (!match) {
+									// Returning 0 if no match was found, which is the worst possible rank.
+									return 0;
+								}
+
+								// Returning the length of the match otherwise. Possible ranks (from best to worst)
+								// are 1, 2, 3, 4, ..., 0.
+								return match[0].length;
 							};
 
 							return _(properties).reject(function (p) {
 								return p === 'password';
-							}).reduce(function(isMatch, p) {
-								return isMatch || doesMatch(entry[p], q);
-							}, false);
+							}).reduce(function(bestRank, p) {
+								var currentRank = rank(entry[p], q);
+
+								if (!currentRank) {
+									return bestRank;
+								}
+
+								if (!bestRank) {
+									return currentRank;
+								}
+
+								return _.min([currentRank, bestRank]);
+							}, 0);
 						};
 
-						_.each(this.get(), function (e) {
-							if (doesMatch(e, this.persistableProperties, q)) {
-								matches.push(e);
-							}
-						}.bind(this));
-
-						return matches;
+						properties = this.persistableProperties;
+						entries = this.get();
+						return _.chain(entries).map(function (e) {
+							return {
+								rank: rank(e, properties, q),
+								entry: e
+							};
+						}).filter(function (e) {
+							return e.rank > 0;
+						}).sortBy(function (e) {
+							return e.rank;
+						}).map(function (e) {
+							return e.entry;
+						}).value();
 					},
 
 					/**

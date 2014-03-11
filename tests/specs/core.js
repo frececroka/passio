@@ -683,16 +683,22 @@
 						});
 					}).then(function () {
 						return passwordService.put({
-							description: 'CodingBat',
-							url: 'http://codingbat.com/',
-							username: 'some_user'
-						});
-					}).then(function () {
-						return passwordService.put({
 							description: 'Criticker',
 							url: 'http://www.criticker.com/',
 							username: 'raymond_mattingly',
 							password: '12345'
+						});
+					}).then(function () {
+						return passwordService.put({
+							description: 'CodingBat',
+							url: 'http://codingbat.com/',
+							username: 'h_omar'
+						});
+					}).then(function () {
+						return passwordService.put({
+							description: 'TravisCI',
+							url: 'https://travis-ci.org/',
+							username: 'homer_simpson'
 						});
 					}).then(done, done);
 				});
@@ -729,6 +735,41 @@
 					assert.lengthOf(
 						passwordService.getBySearch('raymatti'), 1,
 						'Searching for "raymatti" returns the entry with the username "raymond_mattingly"'
+					);
+				});
+
+				it('should rank search results by the length of their match', function () {
+					// We are searching for "hom", which will match
+					//
+					//  + |hom|er_simpson
+					//  + |h|_|om|ar
+					//  + |h|ttp://codingbat.c|om|/
+					//  + |h|ttps://www.google.c|om|/
+					//  + |h|ttps://www.amazon.c|om|.au/
+					//  + |h|ttp://www.criticker.c|om|/
+					//
+					// The second result's (h_omar) purpose is to avoid that matches are greedy (matching
+					// "|ho|mer_si|m|pson" instead of "|hom|er_simpson").
+					var searchResults = passwordService.getBySearch('hom');
+
+					assert.lengthOf(
+						searchResults, 5,
+						'Searching for "hom" matches 5 entries'
+					);
+
+					assert.strictEqual(
+						searchResults[0].username, 'homer_simpson',
+						'The first (most relevant) match is "homer_simpson"'
+					);
+
+					assert.strictEqual(
+						searchResults[1].username, 'h_omar',
+						'The first (most relevant) match is "h_omar"'
+					);
+
+					assert.strictEqual(
+						searchResults[4].url, 'http://www.criticker.com/',
+						'The last (least relevant) match is "http://www.criticker.com/"'
 					);
 				});
 
