@@ -3,14 +3,18 @@
 
 	define([
 		'underscore',
-		'angular'
+		'angular',
+		'passio/utils'
 	], function (_, angular) {
 
-		var core = angular.module('passio.core', []);
+		var core = angular.module('passio.core', [
+			'passio.utils'
+		]);
 
 		core.factory('PasswordService', [
 			'$q',
-			function ($q) {
+			'utils',
+			function ($q, utils) {
 				/**
 				 * Creates a new, uninitialized instance of PasswordService using the given username. To
 				 * initialize this instance, the `init` method has to be called.
@@ -330,33 +334,10 @@
 						}
 
 						rank = function (entry, properties, q) {
-							var rank, ranks;
-
-							rank = function (haystack, needle) {
-								var regex, match;
-
-								haystack = String(haystack).toLowerCase();
-								needle = String(needle).toLowerCase();
-
-								// Create a RegEx for fuzzy-matching. If the needle is "abcde", the regex will be
-								// "a.*?b.*?c.*?d". We do not want to match greedily, hence the questionmark.
-								regex = new RegExp(needle.split('').join('.*?'));
-								match = regex.exec(haystack);
-
-								if (!match) {
-									// Returning 0 if no match was found, which is the worst possible rank.
-									return 0;
-								}
-
-								// Returning the length of the match otherwise. Possible ranks (from best to worst)
-								// are 1, 2, 3, 4, ..., 0.
-								return match[0].length;
-							};
-
-							ranks = _.chain(properties).reject(function (p) {
+							var ranks = _.chain(properties).reject(function (p) {
 								return p === 'password';
 							}).map(function(p) {
-								return rank(entry[p], q);
+								return utils.fuzzyMatch(entry[p], q);
 							}).reject(function (r) {
 								return r === 0;
 							}).value();
