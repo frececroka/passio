@@ -95,6 +95,18 @@
 			}
 		]);
 
+		passList.directive('matchedText', [
+			function () {
+				return {
+					templateUrl: 'views/matched-text.html',
+					scope: {
+						match: '=',
+						text: '='
+					}
+				};
+			}
+		]);
+
 	});
 
 })();

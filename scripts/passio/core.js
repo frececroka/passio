@@ -334,34 +334,35 @@
 						}
 
 						rank = function (entry, properties, q) {
-							var ranks = _.chain(properties).reject(function (p) {
+							entry.rank = 0;
+
+							_.chain(properties).reject(function (p) {
 								return p === 'password';
-							}).map(function(p) {
-								return utils.fuzzyMatch(entry[p], q);
-							}).reject(function (r) {
-								return r === 0;
-							}).value();
+							}).each(function (p) {
+								var currentMatch = utils.fuzzyMatch(entry[p], q);
 
-							if (!ranks.length) {
-								return 0;
-							}
+								entry['$' + p] = currentMatch.slices;
 
-							return _.min(ranks);
+								if (currentMatch.rank > 0) {
+									if (entry.rank > 0) {
+										entry.rank = Math.min(currentMatch.rank, entry.rank);
+									} else {
+										entry.rank = currentMatch.rank;
+									}
+								}
+							});
+
+							return entry;
 						};
 
 						properties = this.persistableProperties;
 						entries = this.get();
 						return _.chain(entries).map(function (e) {
-							return {
-								rank: rank(e, properties, q),
-								entry: e
-							};
+							return rank(e, properties, q);
 						}).filter(function (e) {
 							return e.rank > 0;
 						}).sortBy(function (e) {
 							return e.rank;
-						}).map(function (e) {
-							return e.entry;
 						}).value();
 					},
 

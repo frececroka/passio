@@ -738,6 +738,19 @@
 					);
 				});
 
+				it('should write the matching slices on the entries', function () {
+					var searchResult = passwordService.getBySearch('raymatt');
+
+					assert.deepEqual(
+						searchResult[0].$username, [
+							{ slice: 'raym', match: true },
+							{ slice: 'ond_m', match: false },
+							{ slice: 'att', match: true },
+							{ slice: 'ingly', match: false }
+						], 'The search result contains the matched slices'
+					);
+				});
+
 				it('should rank search results by the length of their match', function () {
 					// We are searching for "hom", which will match
 					//

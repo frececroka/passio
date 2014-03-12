@@ -3,6 +3,7 @@
 
 	define([
 		'specs/core',
-		'specs/encryption'
+		'specs/encryption',
+		'specs/utils'
 	], function () {});
 }());
