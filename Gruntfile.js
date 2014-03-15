@@ -69,6 +69,7 @@ module.exports = function(grunt) {
 				basePath: 'dist',
 				frameworks: ['mocha', 'requirejs'],
 				reporters: ['dots'],
+				autoWatch: false,
 				files: [
 					'scripts/require-config.js',
 					'tests/tests-karma.js',
