@@ -8,18 +8,18 @@
   "main": "dist/index.html",
   "license": "MIT",
   "dependencies": {
-    "bootstrap": "~3.0.2",
-    "requirejs": "~2.1.9",
-    "jquery": "~2.0.3",
-    "angular": "~1.2.3",
-    "angular-route": "~1.2.3",
-    "underscore": "~1.5.2",
+    "bootstrap": "^3.1.1",
+    "requirejs": "^2.1.11",
+    "jquery": "^2.1.0",
+    "angular": "^1.2.14",
+    "angular-route": "^1.2.14",
+    "underscore": "^1.6.0",
     "cryptojs": "*",
-    "requirejs-text": "~2.0.10"
+    "requirejs-text": "^2.0.10"
   },
   "devDependencies": {
-    "chai": "~1.9.0",
+    "chai": "^1.9.0",
     "sinon": "http://sinonjs.org/releases/sinon-1.8.2.js",
-    "mocha": "~1.17.1"
+    "mocha": "^1.18.0"
   }
 }
