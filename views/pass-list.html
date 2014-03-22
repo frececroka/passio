@@ -127,6 +127,20 @@
 				</div>
 			</div>
 		</div>
+
+		<div class="panel panel-default password-box">
+			<div class="panel-heading">New password</div>
+			<div class="panel-body">
+				<input type="text" class="form-control" placeholder="Description" data-ng-model="newEntry.description" />
+				<input type="text" class="form-control" placeholder="URL" data-ng-model="newEntry.url" />
+				<input type="text" class="form-control" placeholder="Username" data-ng-model="newEntry.username" />
+				<input type="password" class="form-control" placeholder="Password" data-ng-model="newEntry.password" />
+
+				<button type="button" class="btn btn-success form-control" data-ng-click="savePassword()">
+					<span class="glyphicon glyphicon-plus"></span> Add password
+				</button>
+			</div>
+		</div>
 	</div>
 
 	<button class="hide">Submit</button>
