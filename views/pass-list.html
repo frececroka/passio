@@ -1,9 +1,9 @@
-<div class="clearfix">
-	<div class="searchbox pull-right">
+<div class="clearfix password-list-header">
+	<h1>Your Passwords</h1>
+
+	<div class="searchbox">
 		<input type="search" class="form-control" ng-model="searchQuery" />
 	</div>
-
-	<h1>Your Passwords</h1>
 </div>
 
 <div class="alert alert-danger" data-ng-show="error">
@@ -132,8 +132,8 @@
 	<button class="hide">Submit</button>
 </form>
 
-<div class="clearfix">
-	<button class="btn btn-primary pull-left"
+<div class="clearfix password-list-footer">
+	<button class="show-hide-button btn btn-primary"
 		data-ng-class="{ active: showRawData }"
 		data-ng-click="showRawData = !showRawData">
 		<span data-ng-hide="showRawData">Show</span>
@@ -141,7 +141,7 @@
 		raw data
 	</button>
 
-	<div class="undo-redo pull-right">
+	<div class="undo-redo-buttons">
 		<button class="btn btn-warning"
 			type="button"
 			data-ng-click="undo()"

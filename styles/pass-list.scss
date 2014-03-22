@@ -1,3 +1,26 @@
+.password-list-header {
+	margin-bottom: 20px;
+
+	h1 {
+		float: left;
+		margin-bottom: 0;
+
+		@media (max-width: 560px) {
+			float: none;
+		}
+	}
+
+	.searchbox {
+		float: right;
+		margin-top: 23px;
+
+		@media (max-width: 560px) {
+			float: none;
+			width: 100%;
+		}
+	}
+}
+
 .password-list {
 	td {
 		vertical-align: middle!important;
@@ -35,6 +58,39 @@
 	}
 }
 
+.password-list-footer {
+	.show-hide-button {
+		float: left;
+
+		@media (max-width: 360px) {
+			float: none;
+			width: 100%;
+
+			margin-bottom: 10px;
+		}
+	}
+
+	.undo-redo-buttons {
+		float: right;
+
+		@media (max-width: 360px) {
+			float: none;
+
+			button {
+				width: 48%;
+
+				&:first-child {
+					float: left;
+				}
+
+				&:last-child {
+					float: right;
+				}
+			}
+		}
+	}
+}
+
 .password-wrapper {
 	background-color: #000;
 
@@ -61,10 +117,6 @@
 		margin-top: 10px;
 		margin-bottom: 10px;
 	}
-}
-
-.searchbox {
-	margin-top: 23px;
 }
 
 .search-match {
