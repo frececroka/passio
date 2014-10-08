@@ -159,15 +159,19 @@
 							// Older accounts don't have a undo and redo history.
 							this.data.undoHistory = this.data.undoHistory || [];
 							this.data.redoHistory = this.data.redoHistory || [];
-						}.bind(this), function () {
-							this.data = {
-								nextId: 1,
-								passwords: [],
-								undoHistory: [],
-								redoHistory: []
-							};
+						}.bind(this), function (e) {
+							if (e.status === 404) {
+								this.data = {
+									nextId: 1,
+									passwords: [],
+									undoHistory: [],
+									redoHistory: []
+								};
 
-							return this.updateUpstream();
+								return this.updateUpstream();
+							} else {
+								throw e;
+							}
 						}.bind(this));
 					},
 

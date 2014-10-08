@@ -27,7 +27,7 @@
 							this.storage[key] = value;
 							deferred.resolve();
 						} else {
-							deferred.reject();
+							deferred.reject({ status: 403 });
 						}
 					}.bind(this));
 
@@ -41,7 +41,7 @@
 						if (this.storage[key]) {
 							deferred.resolve(this.storage[key]);
 						} else {
-							deferred.reject();
+							deferred.reject({ status: 404 });
 						}
 					}.bind(this));
 
