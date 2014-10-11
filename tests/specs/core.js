@@ -6,10 +6,11 @@
 		'chai',
 		'sinon',
 		'angular',
+		'crypto/pbkdf2',
 		'mocks/base',
 		'mocks/persistence',
 		'passio/core',
-	], function (_, chai, sinon, angular) {
+	], function (_, chai, sinon, angular, pbkdf2) {
 		var assert = chai.assert;
 
 		describe('core', function () {
@@ -38,16 +39,18 @@
 				};
 
 				createEncryptionService = function (password, authorization) {
-					var encryptionService, createAuthorizationDeferred;
+					var encryptionService, initDeferred;
 
 					encryptionService = new EncryptionService({
 						secretKey: password
 					});
 
-					createAuthorizationDeferred = $q.defer();
-					createAuthorizationDeferred.resolve(authorization);
-					sinon.stub(encryptionService, 'createAuthorization')
-						.returns(createAuthorizationDeferred.promise);
+					encryptionService.derivedKey = pbkdf2(password, "salt", { keySize: 256 / 32 });
+
+					initDeferred = $q.defer();
+					initDeferred.resolve(authorization);
+					sinon.stub(encryptionService, 'init')
+						.returns(initDeferred.promise);
 
 					return encryptionService;
 				};
@@ -173,7 +176,7 @@
 
 					passwordService.getPersistenceService().store(
 						'48a7ae7a51262c17cbbf05eafb0a3490f7caa778', 'existing_user',
-						'UtLINJuCHnpAGGKpTfa4rPHnHNty6rqVYpwdjqxgCbpgFpn/S7Xwl1B5YjnzfEFot+EZ28UdUn4Mt7xXB8ljKYQuokbYK0ch4o4GLYY='
+						'{"ct":"E8Kje6dIylknyZOW7gp2yMtWEiMjAsOHLAibcFBT8dKf9Fd5Wl8hoawzr09agAhrFZax0om4WRi2zF8lOX+5Lw==","iv":"OnPVHqc8RHHwoBY7lgXLhw=="}'
 					).then(function () {
 						persistenceServiceSpy = createPersistenceServiceSpy(passwordService);
 						return passwordService.init();

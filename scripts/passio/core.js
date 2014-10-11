@@ -149,7 +149,7 @@
 					 *     gathered and which is rejected when the process failed.
 					 */
 					init: function () {
-						return this.getEncryptionService().createAuthorization().then(function (auth) {
+						return this.getEncryptionService().init().then(function (auth) {
 							this.auth = auth;
 							return this.getPersistenceService().retrieve(this.username);
 						}.bind(this)).then(function (data) {

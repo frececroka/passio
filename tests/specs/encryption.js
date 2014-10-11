@@ -4,9 +4,10 @@
 	define([
 		'chai',
 		'angular',
+		'crypto',
 		'mocks/base',
 		'passio/encryption'
-	], function (chai, angular, Worker) {
+	], function (chai, angular, crypto) {
 		var assert = chai.assert;
 
 		describe('encryption', function () {
@@ -24,15 +25,15 @@
 
 			describe('encrypting and decrypting data', function () {
 				it('should be able to decrypt encrypted data', function () {
-					var encryptionServiceOne, encryptionServiceTwo, plain, cipher;
+					var key1, encryptionServiceOne, encryptionServiceTwo, plain, cipher;
 
-					encryptionServiceOne = new EncryptionService({
-						secretKey: 'secret_key'
-					});
+					key1 = crypto.lib.WordArray.random(32);
 
-					encryptionServiceTwo = new EncryptionService({
-						secretKey: 'secret_key'
-					});
+					encryptionServiceOne = new EncryptionService({ secretKey: 'secret_key' });
+					encryptionServiceOne.derivedKey = key1;
+
+					encryptionServiceTwo = new EncryptionService({ secretKey: 'secret_key' });
+					encryptionServiceTwo.derivedKey = key1;
 
 					plain = 'This is the plain text';
 					cipher = encryptionServiceOne.encrypt(plain);
@@ -46,13 +47,11 @@
 				it('should fail to decrypt data which was encrypted with a different key', function () {
 					var encryptionServiceOne, encryptionServiceTwo, plain, cipher;
 
-					encryptionServiceOne = new EncryptionService({
-						secretKey: 'secret_key'
-					});
+					encryptionServiceOne = new EncryptionService({ secretKey: 'secret_key' });
+					encryptionServiceOne.derivedKey = crypto.lib.WordArray.random(32);
 
-					encryptionServiceTwo = new EncryptionService({
-						secretKey: 'different_secret_key'
-					});
+					encryptionServiceTwo = new EncryptionService({ secretKey: 'different_secret_key' });
+					encryptionServiceTwo.derivedKey = crypto.lib.WordArray.random(32);
 
 					plain = 'This is the plain text';
 					cipher = encryptionServiceOne.encrypt(plain);

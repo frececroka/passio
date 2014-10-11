@@ -3,8 +3,10 @@
 
 	define([
 		'angular',
-		'crypto/aes'
-	], function (angular, aes) {
+		'crypto',
+		'crypto/aes',
+		'json-formatter'
+	], function (angular, crypto, aes, jsonFormatter) {
 		var encryption = angular.module('passio.encryption', []);
 
 		encryption.factory('EncryptionService', [
@@ -36,19 +38,26 @@
 				 * @return {Promise}  A promise which is resolved with the generated authorization token
 				 *     as soon as it is available.
 				 */
-				EncryptionService.prototype.createAuthorization = function() {
+				EncryptionService.prototype.init = function() {
 					var deferred = $q.defer();
 
-					var authWorker = new Worker('scripts/passio/auth-token-worker.js');
-					authWorker.postMessage({
+					var pbkdf2Worker = new Worker('scripts/passio/pbkdf2-worker.js');
+					pbkdf2Worker.postMessage({
 						password: this.secretKey,
-						authIterations: this.authIterations
+						length: 512,
+						iterations: this.authIterations
 					});
 
-					authWorker.onmessage = function (m) {
-						deferred.resolve(m.data);
-						authWorker.onmessage = null;
-					};
+					pbkdf2Worker.onmessage = function (m) {
+						var k = crypto.enc.Hex.parse(m.data).words;
+						var derivedKey = crypto.lib.WordArray.create(k.slice(0, 8));
+						var authKey = crypto.lib.WordArray.create(k.slice(8, 16));
+
+						this.derivedKey = derivedKey;
+						deferred.resolve(authKey.toString());
+
+						pbkdf2Worker.onmessage = null;
+					}.bind(this);
 
 					return deferred.promise;
 				};
@@ -61,7 +70,10 @@
 				 */
 				EncryptionService.prototype.encrypt = function (plain) {
 					plain = JSON.stringify(plain);
-					return aes.encrypt(plain, this.secretKey);
+					return aes.encrypt(plain, this.derivedKey, {
+						format: jsonFormatter,
+						iv: crypto.lib.WordArray.random(16)
+					}).toString();
 				};
 
 				/**
@@ -72,7 +84,12 @@
 				 * @return {Object}  The decrypted ciphertext, after being parsed with `JSON.parse`.
 				 */
 				EncryptionService.prototype.decrypt = function (cipher) {
-					var plain = aes.decrypt(cipher, this.secretKey);
+					var parsedCipher = jsonFormatter.parse(cipher);
+					var plain = aes.decrypt(cipher, this.derivedKey, {
+						format: jsonFormatter,
+						iv: parsedCipher.iv
+					}).toString(crypto.enc.Utf8);
+
 					return JSON.parse(plain);
 				};
 

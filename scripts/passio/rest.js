@@ -40,6 +40,10 @@
 					return $http({
 						method: 'GET',
 						url: this.backendUrl + key,
+						// This overrides the default response transformer, which would deserialize a JSON
+						// response. Since we want to return plain text in every case, this transformer needs to
+						// be disabled.
+						transformResponse: function (data) { return data },
 						headers: {
 							'Accept': 'text/plain'
 						}

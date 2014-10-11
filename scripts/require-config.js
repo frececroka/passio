@@ -27,27 +27,37 @@ requirejs.config({
 			deps: ['angular']
 		},
 		'crypto': {
-			exports: 'Crypto'
+			exports: 'CryptoJS'
 		},
-		'crypto/aes': {
-			exports: 'Crypto.AES',
-			deps: ['crypto', 'crypto/block-modes', 'crypto/pbkdf2']
+		'crypto/cipher-core': {
+			exports: 'CryptoJS.lib.Cipher',
+			deps: ['crypto', 'crypto/base64', 'crypto/evpkdf']
 		},
-		'crypto/block-modes': {
+		'crypto/base64': {
+			exports: 'CryptoJS.enc.Base64',
 			deps: ['crypto']
+		},
+		'crypto/evpkdf': {
+			exports: 'CryptoJS.algo.EvpKDF',
+			deps: ['crypto', 'crypto/md5']
 		},
 		'crypto/pbkdf2': {
-			exports: 'Crypto.PBKDF2',
-			deps: ['crypto', 'crypto/hmac', 'crypto/sha1']
-		},
-		'crypto/hmac': {
-			deps: ['crypto']
+			exports: 'CryptoJS.PBKDF2',
+			deps: ['crypto', 'crypto/sha1', 'crypto/hmac']
 		},
 		'crypto/sha1': {
+			exports: 'CryptoJS.algo.SHA1',
 			deps: ['crypto']
 		},
-		'crypto/sha256': {
-			exports: 'Crypto.SHA256',
+		'crypto/md5': {
+			exports: 'CryptoJS.algo.MD5',
+			deps: ['crypto']
+		},
+		'crypto/aes': {
+			exports: 'CryptoJS.AES',
+			deps: ['crypto', 'crypto/cipher-core']
+		},
+		'crypto/hmac': {
 			deps: ['crypto']
 		},
 		'mocha': {
