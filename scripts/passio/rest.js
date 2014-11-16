@@ -2,8 +2,9 @@
 	'use strict';
 
 	define([
-		'angular'
-	], function (angular) {
+		'angular',
+		'crypto'
+	], function (angular, crypto) {
 
 		var rest = angular.module('passio.rest', []);
 
@@ -21,16 +22,36 @@
 						throw new Error('A backend URL is required.');
 					}
 
+					if (!options.encryptionService) {
+						throw new Error('A encryptionService is required.');
+					}
+
 					this.backendUrl = options.backendUrl;
+					this.encryptionService = options.encryptionService;
 				};
 
-				RestService.prototype.store = function (auth, key, value) {
+				RestService.prototype.create = function (key) {
+					var signingKey = crypto.enc.Base64.stringify(this.encryptionService.signingKey);
+
+					return $http({
+						method: 'PUT',
+						url: this.backendUrl + key,
+						headers: {
+							'X-Signing-Key': signingKey,
+							'Content-Type': 'text/plain'
+						}
+					});
+				};
+
+				RestService.prototype.store = function (key, value) {
+					var mac = crypto.enc.Base64.stringify(this.encryptionService.sign(value));
+
 					return $http({
 						method: 'POST',
 						url: this.backendUrl + key,
 						data: value,
 						headers: {
-							'Authorization': auth,
+							'X-MAC': mac,
 							'Content-Type': 'text/plain'
 						}
 					});

@@ -12,23 +12,27 @@
 			function ($q) {
 				var MemoryPersistenceService = function () {
 					this.storage = {};
-					this.authorizationTokens = {};
 				};
 
-				MemoryPersistenceService.prototype.store = function (auth, key, value) {
+				MemoryPersistenceService.prototype.create = function (key) {
 					var deferred = $q.defer();
 
 					setTimeout(function () {
-						if (!this.authorizationTokens[key]) {
-							this.authorizationTokens[key] = auth;
-						}
+						this.storage[key] = '';
+						deferred.resolve();
+					}.bind(this));
 
-						if (auth === this.authorizationTokens[key]) {
-							this.storage[key] = value;
-							deferred.resolve();
-						} else {
-							deferred.reject({ status: 403 });
-						}
+					return deferred.promise;
+				};
+
+				MemoryPersistenceService.prototype.store = function (key, value) {
+					var deferred = $q.defer();
+
+					setTimeout(function () {
+						if (!key in this.storage) return deferred.reject({ status: 404 });
+
+						this.storage[key] = value;
+						deferred.resolve();
 					}.bind(this));
 
 					return deferred.promise;

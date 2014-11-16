@@ -25,15 +25,15 @@
 
 			describe('encrypting and decrypting data', function () {
 				it('should be able to decrypt encrypted data', function () {
-					var key1, encryptionServiceOne, encryptionServiceTwo, plain, cipher;
+					var secretKey1, encryptionServiceOne, encryptionServiceTwo, plain, cipher;
 
-					key1 = crypto.lib.WordArray.random(32);
+					secretKey1 = crypto.lib.WordArray.random(32);
 
-					encryptionServiceOne = new EncryptionService({ secretKey: 'secret_key' });
-					encryptionServiceOne.derivedKey = key1;
+					encryptionServiceOne = new EncryptionService({ password: 'secret_key' });
+					encryptionServiceOne.secretKey = secretKey1;
 
-					encryptionServiceTwo = new EncryptionService({ secretKey: 'secret_key' });
-					encryptionServiceTwo.derivedKey = key1;
+					encryptionServiceTwo = new EncryptionService({ password: 'secret_key' });
+					encryptionServiceTwo.secretKey = secretKey1;
 
 					plain = 'This is the plain text';
 					cipher = encryptionServiceOne.encrypt(plain);
@@ -47,11 +47,11 @@
 				it('should fail to decrypt data which was encrypted with a different key', function () {
 					var encryptionServiceOne, encryptionServiceTwo, plain, cipher;
 
-					encryptionServiceOne = new EncryptionService({ secretKey: 'secret_key' });
-					encryptionServiceOne.derivedKey = crypto.lib.WordArray.random(32);
+					encryptionServiceOne = new EncryptionService({ password: 'secret_key' });
+					encryptionServiceOne.secretKey = crypto.lib.WordArray.random(32);
 
-					encryptionServiceTwo = new EncryptionService({ secretKey: 'different_secret_key' });
-					encryptionServiceTwo.derivedKey = crypto.lib.WordArray.random(32);
+					encryptionServiceTwo = new EncryptionService({ password: 'different_secret_key' });
+					encryptionServiceTwo.secretKey = crypto.lib.WordArray.random(32);
 
 					plain = 'This is the plain text';
 					cipher = encryptionServiceOne.encrypt(plain);
@@ -59,6 +59,16 @@
 					assert.throws(function () {
 						encryptionServiceTwo.decrypt(cipher);
 					});
+				});
+
+				it('should be able to sign data', function () {
+					var encryptionService = new EncryptionService({ password: 'secret_key' });
+					encryptionService.signingKey = CryptoJS.lib.WordArray.create(
+						[237476307, 1502630970, 1081900459, -1143631621]);
+
+					assert.strictEqual(
+						'a327db2e44907b543e2fe8f6aa9b091c396159fe',
+						encryptionService.sign('abc die katze lief im schnee.').toString());
 				});
 			});
 		});

@@ -33,17 +33,22 @@
 					 *     initialized.
 					 */
 					create: function (username, password) {
-						var passwordService;
+						var encryptionService, persistenceService, passwordService;
+
+						encryptionService = new EncryptionService({
+							password: password,
+							authIterations: config.authIterations
+						});
+
+						persistenceService = new RestService({
+							backendUrl: config.backendUrl,
+							encryptionService: encryptionService
+						});
 
 						passwordService = new PasswordService({
 							username: username,
-							encryptionService: new EncryptionService({
-								secretKey: password,
-								authIterations: config.authIterations
-							}),
-							persistenceService: new RestService({
-								backendUrl: config.backendUrl
-							})
+							encryptionService: encryptionService,
+							persistenceService: persistenceService
 						});
 
 						return passwordService.init();

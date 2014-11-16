@@ -149,8 +149,7 @@
 					 *     gathered and which is rejected when the process failed.
 					 */
 					init: function () {
-						return this.getEncryptionService().init().then(function (auth) {
-							this.auth = auth;
+						return this.getEncryptionService().init().then(function () {
 							return this.getPersistenceService().retrieve(this.username);
 						}.bind(this)).then(function (data) {
 							this.encryptedData = data;
@@ -168,7 +167,9 @@
 									redoHistory: []
 								};
 
-								return this.updateUpstream();
+								return this.getPersistenceService().create(this.username).then(function () {
+									return this.updateUpstream();
+								}.bind(this));
 							} else {
 								throw e;
 							}
@@ -181,7 +182,7 @@
 					 * @return {Boolean}  True if passwords can be read and written. False if not.
 					 */
 					isInitialized: function () {
-						return this.data && this.auth;
+						return this.data;
 					},
 
 					/**
@@ -564,7 +565,7 @@
 						});
 
 						cipher = this.getEncryptionService().encrypt(data);
-						return this.getPersistenceService().store(this.auth, this.username, cipher).then(function () {
+						return this.getPersistenceService().store(this.username, cipher).then(function () {
 							this.encryptedData = cipher;
 
 							_.chain(this.data.passwords).filter(function (p) {

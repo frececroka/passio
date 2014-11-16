@@ -38,40 +38,41 @@
 					};
 				};
 
-				createEncryptionService = function (password, authorization) {
+				createEncryptionService = function (password) {
 					var encryptionService, initDeferred;
 
 					encryptionService = new EncryptionService({
-						secretKey: password
+						password: password
 					});
 
-					encryptionService.derivedKey = pbkdf2(password, "salt", { keySize: 256 / 32 });
+					encryptionService.secretKey = pbkdf2(password, "salt", { keySize: 256 / 32 });
+					encryptionService.signingKey = pbkdf2(password, "sugar", { keySize: 256 / 32 });
 
 					initDeferred = $q.defer();
-					initDeferred.resolve(authorization);
+					initDeferred.resolve();
 					sinon.stub(encryptionService, 'init')
 						.returns(initDeferred.promise);
 
 					return encryptionService;
 				};
 
-				createPasswordService = function (username, password, authentication) {
+				createPasswordService = function (username, password) {
+					var encryptionService, persistenceService;
+
+					encryptionService = createEncryptionService(password);
+					persistenceService = new MemoryPersistenceService();
+
 					return new PasswordService({
 						username: username,
-						persistenceService: new MemoryPersistenceService(),
-						encryptionService: createEncryptionService(
-							password, authentication
-						)
+						persistenceService: persistenceService,
+						encryptionService: encryptionService
 					});
 				};
 			});
 
 			describe('loading and accessing multiple instances of PasswordService', function () {
 				it('should save a previously created instance for later access', function () {
-					createPasswordService(
-						'user_one', 'her_password',
-						'8d55c2de349ca084a3841e533d9b8342'
-					);
+					createPasswordService('user_one', 'her_password');
 
 					assert.ok(
 						PasswordService.getInstance('user_one'),
@@ -83,10 +84,7 @@
 						'The instance for "user_two" is not yet saved.'
 					);
 
-					createPasswordService(
-						'user_two', 'his_password',
-						'fa7a966d08194d6debb1ba716605d3e6'
-					);
+					createPasswordService('user_two', 'his_password');
 
 					assert.ok(
 						PasswordService.getInstance('user_one'),
@@ -105,15 +103,8 @@
 				});
 
 				it('should clear saved instances after calling PasswordService.clearInstances', function () {
-					createPasswordService(
-						'user_one', 'her_password',
-						'8d55c2de349ca084a3841e533d9b8342'
-					);
-
-					createPasswordService(
-						'user_two', 'his_password',
-						'fa7a966d08194d6debb1ba716605d3e6'
-					);
+					createPasswordService('user_one', 'her_password');
+					createPasswordService('user_two', 'his_password');
 
 					PasswordService.clearInstances();
 
@@ -137,11 +128,7 @@
 				var passwordService, persistenceServiceSpy;
 
 				beforeEach(function (done) {
-					passwordService = createPasswordService(
-						'new_user', 'password',
-						'5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8'
-					);
-
+					passwordService = createPasswordService('new_user', 'password');
 					persistenceServiceSpy = createPersistenceServiceSpy(passwordService);
 					passwordService.init().then(done, done);
 				});
@@ -150,13 +137,6 @@
 					assert.strictEqual(
 						1, persistenceServiceSpy.store.callCount,
 						'memoryPersistenceService.store() was called one time.'
-					);
-				});
-
-				it('should have called memoryPersistenceService.store() with the right parameters', function () {
-					assert.ok(
-						persistenceServiceSpy.store.calledWith('5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8', 'new_user'),
-						'memoryPersistenceService.store() was called with the correct authentication and username'
 					);
 				});
 
@@ -169,13 +149,9 @@
 				var passwordService, persistenceServiceSpy;
 
 				beforeEach(function (done) {
-					passwordService = createPasswordService(
-						'existing_user', 'another_password',
-						'48a7ae7a51262c17cbbf05eafb0a3490f7caa778'
-					);
-
+					passwordService = createPasswordService('existing_user', 'another_password');
 					passwordService.getPersistenceService().store(
-						'48a7ae7a51262c17cbbf05eafb0a3490f7caa778', 'existing_user',
+						'existing_user',
 						'{"ct":"E8Kje6dIylknyZOW7gp2yMtWEiMjAsOHLAibcFBT8dKf9Fd5Wl8hoawzr09agAhrFZax0om4WRi2zF8lOX+5Lw==","iv":"OnPVHqc8RHHwoBY7lgXLhw=="}'
 					).then(function () {
 						persistenceServiceSpy = createPersistenceServiceSpy(passwordService);
@@ -207,11 +183,7 @@
 				it('should fail if the wrong password is used', function (done) {
 					var passwordServiceOne, passwordServiceTwo;
 
-					passwordServiceOne = createPasswordService(
-						'some_user', 'password',
-						'5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8'
-					);
-
+					passwordServiceOne = createPasswordService('some_user', 'password');
 					passwordServiceOne.init().then(function () {
 						return passwordServiceOne.put({
 							description: 'CodingBat',
@@ -219,11 +191,7 @@
 							username: 'some_user'
 						});
 					}).then(function () {
-						passwordServiceTwo = createPasswordService(
-							'some_user', 'wrong_password',
-							'df962c307233352659ecd3f940e40470'
-						);
-
+						passwordServiceTwo = createPasswordService('some_user', 'wrong_password');
 						passwordServiceTwo.setPersistenceService(passwordServiceOne.getPersistenceService());
 						return passwordServiceTwo.init();
 					}).then(function () {
@@ -255,7 +223,7 @@
 							oldPersistenceService = passwordService.getPersistenceService();
 						}
 
-						passwordService = createPasswordService(username, password, authorization);
+						passwordService = createPasswordService(username, password);
 
 						if (oldPersistenceService) {
 							passwordService.setPersistenceService(oldPersistenceService);
@@ -266,7 +234,7 @@
 						return passwordService.init();
 					};
 
-					passwordService = createPasswordService(username, password, authorization);
+					passwordService = createPasswordService(username, password);
 					persistenceServiceSpy = createPersistenceServiceSpy(passwordService);
 					passwordService.init().then(done, done);
 				});
@@ -312,8 +280,8 @@
 						);
 
 						assert.ok(
-							persistenceServiceSpy.store.calledWith('48a7ae7a51262c17cbbf05eafb0a3490f7caa778', 'some_user'),
-							'persistenceServiceSpy.store() has been called with the correct key and authentication.'
+							persistenceServiceSpy.store.calledWith('some_user'),
+							'persistenceServiceSpy.store() has been called with the correct key.'
 						);
 					}).then(done, done);
 				});
@@ -408,11 +376,7 @@
 				var passwordService;
 
 				beforeEach(function (done) {
-					passwordService = createPasswordService(
-						'existing_user', 'another_password',
-						'48a7ae7a51262c17cbbf05eafb0a3490f7caa778'
-					);
-
+					passwordService = createPasswordService('existing_user', 'another_password');
 					passwordService.init().then(function () {
 						return passwordService.put({
 							description: 'Google',
@@ -490,11 +454,7 @@
 				var passwordService;
 
 				beforeEach(function (done) {
-					passwordService = createPasswordService(
-						'some_user', 'another_password',
-						'48a7ae7a51262c17cbbf05eafb0a3490f7caa778'
-					);
-
+					passwordService = createPasswordService('some_user', 'another_password');
 					passwordService.init().then(done, done);
 				});
 
@@ -656,11 +616,7 @@
 				var passwordService;
 
 				beforeEach(function (done) {
-					passwordService = createPasswordService(
-						'some_user', 'another_password',
-						'48a7ae7a51262c17cbbf05eafb0a3490f7caa778'
-					);
-
+					passwordService = createPasswordService('some_user', 'another_password');
 					passwordService.init().then(function () {
 						return passwordService.put({
 							description: 'Google',
