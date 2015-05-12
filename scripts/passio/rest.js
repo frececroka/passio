@@ -3,8 +3,8 @@
 
 	define([
 		'angular',
-		'crypto'
-	], function (angular, crypto) {
+		'passio/encoding'
+	], function (angular, encoding) {
 
 		var rest = angular.module('passio.rest', []);
 
@@ -31,7 +31,7 @@
 				};
 
 				RestService.prototype.create = function (key) {
-					var signingKey = crypto.enc.Base64.stringify(this.encryptionService.signingKey);
+					var signingKey = this.encryptionService.signingKeyBase64;
 
 					return $http({
 						method: 'PUT',
@@ -44,17 +44,18 @@
 				};
 
 				RestService.prototype.store = function (key, value) {
-					var mac = crypto.enc.Base64.stringify(this.encryptionService.sign(value));
-
-					return $http({
-						method: 'POST',
-						url: this.backendUrl + key,
-						data: value,
-						headers: {
-							'X-MAC': mac,
-							'Content-Type': 'text/plain'
-						}
-					});
+					return this.encryptionService.sign(value).then(function (signature) {
+						signature = encoding.ab2b64(signature);
+						return $http({
+							method: 'POST',
+							url: this.backendUrl + key,
+							data: value,
+							headers: {
+								'X-MAC': signature,
+								'Content-Type': 'text/plain'
+							}
+						});
+					}.bind(this));
 				};
 
 				RestService.prototype.retrieve = function (key) {

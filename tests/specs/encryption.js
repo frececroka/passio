@@ -4,71 +4,95 @@
 	define([
 		'chai',
 		'angular',
-		'crypto',
+		'passio/encoding',
 		'mocks/base',
-		'passio/encryption'
-	], function (chai, angular, crypto) {
-		var assert = chai.assert;
+		'passio/subtle-encryption',
+		'passio/fallback-encryption',
+	], function (chai, angular, encoding) {
+		var assert, $injector, $q, SubtleEncryptionService, FallbackEncryptionService;
 
-		describe('encryption', function () {
-			var $injector, EncryptionService;
+		assert = chai.assert;
 
-			beforeEach(function () {
-				$injector = angular.injector([
-					'ng',
-					'passio.encryption',
-					'passio.mocks.base'
-				]);
+		$injector = angular.injector([
+			'ng',
+			'passio.subtleencryption',
+			'passio.fallbackencryption',
+			'passio.mocks.base'
+		]);
 
-				EncryptionService = $injector.get('EncryptionService');
-			});
+		$q = $injector.get('$q');
+		SubtleEncryptionService = $injector.get('SubtleEncryptionService');
+		FallbackEncryptionService = $injector.get('FallbackEncryptionService');
 
-			describe('encrypting and decrypting data', function () {
-				it('should be able to decrypt encrypted data', function () {
-					var secretKey1, encryptionServiceOne, encryptionServiceTwo, plain, cipher;
+		[{
+			name: 'subtle',
+			implementation: SubtleEncryptionService
+		}, {
+			name: 'fallback',
+			implementation: FallbackEncryptionService
+		}].forEach(function (params) {
+			var EncryptionService = params.implementation;
 
-					secretKey1 = crypto.lib.WordArray.random(32);
-
-					encryptionServiceOne = new EncryptionService({ password: 'secret_key' });
-					encryptionServiceOne.secretKey = secretKey1;
-
-					encryptionServiceTwo = new EncryptionService({ password: 'secret_key' });
-					encryptionServiceTwo.secretKey = secretKey1;
-
-					plain = 'This is the plain text';
-					cipher = encryptionServiceOne.encrypt(plain);
-
-					assert.strictEqual(
-						plain, encryptionServiceTwo.decrypt(cipher),
-						'The EncryptionService can decrypt encrypted data when using the same key.'
-					);
+			function createEncryptionService (password) {
+				return new EncryptionService({
+					password: password,
+					authIterations: 2,
+					pbkdf2WorkerPath: 'base/scripts/passio/pbkdf2-worker.js'
 				});
+			}
 
-				it('should fail to decrypt data which was encrypted with a different key', function () {
+			describe('encryption ' + params.name, function () {
+				it('should be able to decrypt encrypted data', function (done) {
 					var encryptionServiceOne, encryptionServiceTwo, plain, cipher;
 
-					encryptionServiceOne = new EncryptionService({ password: 'secret_key' });
-					encryptionServiceOne.secretKey = crypto.lib.WordArray.random(32);
-
-					encryptionServiceTwo = new EncryptionService({ password: 'different_secret_key' });
-					encryptionServiceTwo.secretKey = crypto.lib.WordArray.random(32);
+					encryptionServiceOne = createEncryptionService('secret_key');
+					encryptionServiceTwo = createEncryptionService('secret_key');
 
 					plain = 'This is the plain text';
-					cipher = encryptionServiceOne.encrypt(plain);
 
-					assert.throws(function () {
-						encryptionServiceTwo.decrypt(cipher);
-					});
+					$q.all([
+						encryptionServiceOne.init(),
+						encryptionServiceTwo.init(),
+					]).then(function () {
+						return encryptionServiceOne.encrypt(plain);
+					}).then(function (cipher) {
+						return encryptionServiceTwo.decrypt(cipher);
+					}).then(function (decryptedCipher) {
+						assert.strictEqual(
+							plain, decryptedCipher,
+							'The EncryptionService can decrypt encrypted data when using the same key.'
+						);
+					}).then(done, done);
 				});
 
-				it('should be able to sign data', function () {
-					var encryptionService = new EncryptionService({ password: 'secret_key' });
-					encryptionService.signingKey = CryptoJS.lib.WordArray.create(
-						[237476307, 1502630970, 1081900459, -1143631621]);
+				it('should fail to decrypt data which was encrypted with a different key', function (done) {
+					var encryptionServiceOne, encryptionServiceTwo, plain, cipher;
 
-					assert.strictEqual(
-						'a327db2e44907b543e2fe8f6aa9b091c396159fe',
-						encryptionService.sign('abc die katze lief im schnee.').toString());
+					encryptionServiceOne = createEncryptionService('secret_key');
+					encryptionServiceTwo = createEncryptionService('different_secret_key');
+
+					plain = 'This is the plain text';
+
+					$q.all([
+						encryptionServiceOne.init(),
+						encryptionServiceTwo.init(),
+					]).then(function () {
+						return encryptionServiceOne.encrypt(plain);
+					}).then(function (cipher) {
+						return encryptionServiceTwo.decrypt(cipher).then(function () {
+							assert.fail();
+						}, function () {});
+					}).then(done, done);
+				});
+
+				it('should be able to sign data', function (done) {
+					var encryptionService = createEncryptionService('secret_key');
+
+					encryptionService.init().then(function () {
+						return encryptionService.sign('abc die katze lief im schnee.');
+					}).then(function (signature) {
+						assert.strictEqual('2vO2NTHDtLz0a8BLua8Y9iO6a9s=', encoding.ab2b64(signature));
+					}).then(done, done);
 				});
 			});
 		});

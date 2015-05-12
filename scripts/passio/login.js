@@ -35,9 +35,10 @@
 		login.controller('LoginController', [
 			'$scope',
 			'$location',
+			'$timeout',
 			'UsernameHistoryService',
 			'PasswordServiceFactory',
-			function ($scope, $location, UsernameHistoryService, PasswordServiceFactory) {
+			function ($scope, $location, $timeout, UsernameHistoryService, PasswordServiceFactory) {
 				$scope.user = {
 					name: UsernameHistoryService.getMostRecent(),
 					password: ''
@@ -49,13 +50,17 @@
 					PasswordServiceFactory.create(
 						$scope.user.name, $scope.user.password
 					).then(function () {
-						UsernameHistoryService.setMostRecent($scope.user.name);
-						$location.path('/' + $scope.user.name).replace();
-						$scope.loginInProgress = false;
+						$timeout(function () {
+							UsernameHistoryService.setMostRecent($scope.user.name);
+							$location.path('/' + $scope.user.name).replace();
+							$scope.loginInProgress = false;
+						});
 					}, function () {
-						$scope.user.password = '';
-						$scope.loginFailed = true;
-						$scope.loginInProgress = false;
+						$timeout(function () {
+							$scope.user.password = '';
+							$scope.loginFailed = true;
+							$scope.loginInProgress = false;
+						});
 					});
 				};
 			}
