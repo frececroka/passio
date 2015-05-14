@@ -40,13 +40,15 @@
 				 * @return {Promise}  A promise which is resolved as soon as the instance is initialized.
 				 */
 				EncryptionService.prototype.init = function() {
-					if (SubtleEncryptionService.isSupported()) {
-						this.implementation = new SubtleEncryptionService(this.options);
-					} else {
-						this.implementation = new FallbackEncryptionService(this.options);
-					}
+					return SubtleEncryptionService.isSupported().then(function (isSupported) {
+						if (isSupported.isSupported) {
+							this.implementation = new SubtleEncryptionService(this.options);
+						} else {
+							this.implementation = new FallbackEncryptionService(this.options);
+						}
 
-					return this.implementation.init().then(function () {
+						return this.implementation.init();
+					}.bind(this)).then(function () {
 						this.signingKeyBase64 = this.implementation.signingKeyBase64;
 					}.bind(this));
 				};

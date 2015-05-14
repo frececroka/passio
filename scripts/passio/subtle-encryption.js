@@ -40,8 +40,118 @@
 				};
 
 				SubtleEncryptionService.isSupported = function () {
-					return window.crypto && window.crypto.subtle;
-				}
+					if (!SubtleEncryptionService.isSupportedPromise) {
+						SubtleEncryptionService.isSupportedPromise = SubtleEncryptionService._isSupported();
+					}
+
+					return SubtleEncryptionService.isSupportedPromise;
+				};
+
+				SubtleEncryptionService._isSupported = function () {
+					var deferred;
+
+					if (!window.crypto || !window.crypto.subtle) {
+						deferred = $q.defer();
+						deferred.resolve({
+							isSupported: false,
+							unsupported: [{
+								name: 'WebCrypto',
+								supported: false
+							}]
+						});
+						return deferred.promise;
+					}
+
+					return $q.all([
+						window.crypto.subtle.importKey(
+							'raw',
+							new ArrayBuffer(10),
+							'PBKDF2',
+							false,
+							['deriveBits']
+						).then(function (pbkdf2Key) {
+							return window.crypto.subtle.deriveBits(
+								{
+									name: 'PBKDF2',
+									salt: new ArrayBuffer(10),
+									iterations: 1,
+									hash: 'SHA-1'
+								},
+								pbkdf2Key,
+								10*8
+							);
+						}).then(function () {
+							return { supported: true };
+						}, function (err) {
+							return {
+								name: 'PBKDF2',
+								supported: false,
+								reason: err
+							};
+						}),
+
+						window.crypto.subtle.importKey(
+							'raw',
+							new ArrayBuffer(32),
+							'AES-CBC',
+							false,
+							['encrypt', 'decrypt']
+						).then(function (aesKey) {
+							return window.crypto.subtle.encrypt(
+								{ name: 'AES-CBC', iv: new ArrayBuffer(16) },
+								aesKey,
+								new ArrayBuffer(10)
+							).then(function (cipher) {
+								return window.crypto.subtle.decrypt(
+									{ name: 'AES-CBC', iv: new ArrayBuffer(16) },
+									aesKey,
+									cipher
+								);
+							});
+						}).then(function () {
+							return { supported: true };
+						}, function (err) {
+							return {
+								name: 'AES-CBC',
+								supported: false,
+								reason: err
+							};
+						}),
+
+						window.crypto.subtle.importKey(
+							'raw',
+							new ArrayBuffer(10),
+							{ name: 'HMAC', hash: 'SHA-1' },
+							false,
+							['sign']
+						).then(function (hmacKey) {
+							return window.crypto.subtle.sign(
+								'HMAC',
+								hmacKey,
+								new ArrayBuffer(10)
+							);
+						}).then(function () {
+							return { supported: true };
+						}, function (err) {
+							return {
+								name: 'HMAC',
+								supported: false,
+								reason: err
+							};
+						})
+					]).then(function (isSupported) {
+						var result = { isSupported: true, unsupported: [] };
+
+						isSupported.forEach(function (p) {
+							if (!p.supported) {
+								result.isSupported = false;
+								result.unsupported.push(p);
+							}
+						});
+
+						return result;
+					});
+				};
 
 				/**
 				 * Initializes the encryption and signing keys.
