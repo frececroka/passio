@@ -51,7 +51,6 @@
 					).then(function () {
 						UsernameHistoryService.setMostRecent($scope.user.name);
 						$location.path('/' + $scope.user.name).replace();
-						$scope.loginInProgress = false;
 					}, function () {
 						$scope.user.password = '';
 						$scope.loginFailed = true;
