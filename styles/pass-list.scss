@@ -22,18 +22,22 @@
 }
 
 .password-list {
+	table-layout: fixed;
+
 	td {
 		vertical-align: middle!important;
 
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+
 		&.actions {
 			text-align: center;
-			min-width: 101px;
 		}
 	}
 
-	td:last-child,
 	th:last-child {
-		width: 1px!important;
+		width: 101px;
 	}
 
 	tr {
