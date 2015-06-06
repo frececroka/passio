@@ -4,3 +4,27 @@
 
 	margin: auto;
 }
+
+.status-bar {
+	position: fixed;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+
+	padding: 3px 10px;
+	background-color: #EEE;
+
+	.status-bar-entry {
+		&.status-bar-entry-unknown {
+			color: #999;
+		}
+
+		&.status-bar-entry-good {
+			color: #008000;
+		}
+
+		&.status-bar-entry-bad {
+			color: #F00;
+		}
+	}
+}

@@ -4,18 +4,21 @@
 	define([
 		'angular',
 		'passio/subtle-encryption',
-		'passio/fallback-encryption'
+		'passio/fallback-encryption',
+		'passio/status',
 	], function (angular) {
 		var encryption = angular.module('passio.encryption', [
 			'passio.subtleencryption',
-			'passio.fallbackencryption'
+			'passio.fallbackencryption',
+			'passio.status',
 		]);
 
 		encryption.factory('EncryptionService', [
 			'$q',
 			'SubtleEncryptionService',
 			'FallbackEncryptionService',
-			function ($q, SubtleEncryptionService, FallbackEncryptionService) {
+			'PassioStatus',
+			function ($q, SubtleEncryptionService, FallbackEncryptionService, PassioStatus) {
 				/**
 				 * Creates a new `EncryptionService` to decrypt and encrypt values.
 				 *
@@ -34,19 +37,33 @@
 					this.options = options;
 				};
 
+				EncryptionService.getImplementation = function () {
+					if (!EncryptionService.implementationPromise) {
+						EncryptionService.implementationPromise = SubtleEncryptionService.isSupported()
+						.then(function (isSupported) {
+							if (isSupported.isSupported) {
+								PassioStatus.webCrypto = 'yes';
+								return SubtleEncryptionService;
+							} else {
+								PassioStatus.webCrypto = 'no';
+								return FallbackEncryptionService;
+							}
+						});
+					}
+
+					return EncryptionService.implementationPromise;
+				};
+
+				EncryptionService.getImplementation();
+
 				/**
 				 * Initializes this instance's internal state.
 				 *
 				 * @return {Promise}  A promise which is resolved as soon as the instance is initialized.
 				 */
 				EncryptionService.prototype.init = function() {
-					return SubtleEncryptionService.isSupported().then(function (isSupported) {
-						if (isSupported.isSupported) {
-							this.implementation = new SubtleEncryptionService(this.options);
-						} else {
-							this.implementation = new FallbackEncryptionService(this.options);
-						}
-
+					return EncryptionService.getImplementation().then(function (EncryptionServiceImpl) {
+						this.implementation = new EncryptionServiceImpl(this.options);
 						return this.implementation.init();
 					}.bind(this)).then(function () {
 						this.signingKeyBase64 = this.implementation.signingKeyBase64;
