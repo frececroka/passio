@@ -3,6 +3,20 @@
   max-width: 300px;
   margin: auto; }
 
+.status-bar {
+  position: fixed;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  padding: 3px 10px;
+  background-color: #EEE; }
+  .status-bar .status-bar-entry.status-bar-entry-unknown {
+    color: #999; }
+  .status-bar .status-bar-entry.status-bar-entry-good {
+    color: #008000; }
+  .status-bar .status-bar-entry.status-bar-entry-bad {
+    color: #F00; }
+
 .password-list-header {
   margin-bottom: 20px; }
   .password-list-header h1 {
@@ -19,22 +33,25 @@
         float: none;
         width: 100%; } }
 
-.password-list td {
-  vertical-align: middle !important; }
-  .password-list td.actions {
-    text-align: center;
-    min-width: 101px; }
-.password-list td:last-child,
-.password-list th:last-child {
-  width: 1px !important; }
-.password-list tr.deleted, .password-list tr.volatile {
-  color: #999; }
-  .password-list tr.deleted a, .password-list tr.volatile a {
+.password-list {
+  table-layout: fixed; }
+  .password-list td {
+    vertical-align: middle !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; }
+    .password-list td.actions {
+      text-align: center; }
+  .password-list th:last-child {
+    width: 101px; }
+  .password-list tr.deleted, .password-list tr.volatile {
     color: #999; }
-  .password-list tr.deleted td .password-wrapper, .password-list tr.volatile td .password-wrapper {
-    background-color: #999; }
-.password-list tr.deleted {
-  text-decoration: line-through; }
+    .password-list tr.deleted a, .password-list tr.volatile a {
+      color: #999; }
+    .password-list tr.deleted td .password-wrapper, .password-list tr.volatile td .password-wrapper {
+      background-color: #999; }
+  .password-list tr.deleted {
+    text-decoration: line-through; }
 
 .password-list-footer .show-hide-button {
   float: left; }
@@ -85,7 +102,12 @@ p.code {
   border-radius: 5px;
   word-wrap: break-word; }
 
+html {
+  height: 100%; }
+
 body {
-  padding: 10px; }
+  padding: 10px;
+  padding-bottom: 50px;
+  min-height: 100%; }
 
 /*# sourceMappingURL=main.css.map */

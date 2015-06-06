@@ -1,0 +1,9 @@
+<span class="status-bar-entry status-bar-entry-good"
+	ng-show="statusValues.webCrypto === 'yes'">
+	WebCrypto: available</span>
+<span class="status-bar-entry status-bar-entry-bad"
+	ng-show="statusValues.webCrypto === 'no'">
+	WebCrypto: unavailable</span>
+<span class="status-bar-entry status-bar-entry-unknown"
+	ng-show="!statusValues.webCrypto">
+	WebCrypto: unknown</span>

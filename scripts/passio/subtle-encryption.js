@@ -23,10 +23,6 @@
 				 *     should be applied when creating the authorization token.
 				 */
 				var SubtleEncryptionService = function (options) {
-					if (!SubtleEncryptionService.isSupported()) {
-						throw new Error('SubtleCrypto is not supported.');
-					}
-
 					if (!options.password) {
 						throw new Error('The secret key is required.');
 					}

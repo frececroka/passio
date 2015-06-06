@@ -56,8 +56,7 @@
 						this.signingKey = crypto.lib.WordArray.create(k.slice(8, 16));
 						this.signingKeyBase64 = crypto.enc.Base64.stringify(this.signingKey);
 
-						pbkdf2Worker.onmessage = null;
-
+						pbkdf2Worker.terminate();
 						deferred.resolve();
 					}.bind(this);
 

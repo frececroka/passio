@@ -3,10 +3,14 @@
 
 	define([
 		'angular',
-		'passio/factories'
+		'passio/factories',
+		'passio/status',
 	], function (angular) {
 
-		var login = angular.module('passio.login', ['passio.factories']);
+		var login = angular.module('passio.login', [
+			'passio.factories',
+			'passio.status',
+		]);
 
 		login.factory('UsernameHistoryService', function () {
 			var UsernameHistoryService = {};
@@ -32,17 +36,31 @@
 			return UsernameHistoryService;
 		});
 
+		login.directive('statusBar', [
+			function () {
+				return {
+					templateUrl: 'views/status-bar.html',
+					scope: {
+						statusValues: '='
+					}
+				};
+			}
+		]);
+
 		login.controller('LoginController', [
 			'$scope',
 			'$location',
 			'$timeout',
 			'UsernameHistoryService',
 			'PasswordServiceFactory',
-			function ($scope, $location, $timeout, UsernameHistoryService, PasswordServiceFactory) {
+			'PassioStatus',
+			function ($scope, $location, $timeout, UsernameHistoryService, PasswordServiceFactory, PassioStatus) {
 				$scope.user = {
 					name: UsernameHistoryService.getMostRecent(),
 					password: ''
 				};
+
+				$scope.statusValues = PassioStatus;
 
 				$scope.doLogin = function () {
 					$scope.loginInProgress = true;
@@ -53,7 +71,6 @@
 						$timeout(function () {
 							UsernameHistoryService.setMostRecent($scope.user.name);
 							$location.path('/' + $scope.user.name).replace();
-							$scope.loginInProgress = false;
 						});
 					}, function () {
 						$timeout(function () {
