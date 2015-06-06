@@ -13,8 +13,9 @@
 			'$scope',
 			'$location',
 			'$routeParams',
+			'$timeout',
 			'PasswordService',
-			function ($scope, $location, $routeParams, PasswordService) {
+			function ($scope, $location, $routeParams, $timeout, PasswordService) {
 				var passwordService = PasswordService.getInstance($routeParams.username);
 				if (!passwordService) {
 					$location.path('/login').replace();
@@ -22,11 +23,15 @@
 				}
 
 				var updateData = function () {
-					$scope.passwords = $scope.searchQuery ?
-						passwordService.getBySearch($scope.searchQuery).slice(0, 5) :
-						passwordService.get();
+					// This timeout is neccessary as the updateData function might have been called outside of
+					// AngularJS's $digest cycle.
+					$timeout(function () {
+						$scope.passwords = $scope.searchQuery ?
+							passwordService.getBySearch($scope.searchQuery).slice(0, 5) :
+							passwordService.get();
 
-					$scope.rawData = passwordService.getRaw();
+						$scope.rawData = passwordService.getRaw();
+					});
 				};
 
 				updateData();

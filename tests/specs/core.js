@@ -10,6 +10,7 @@
 		'mocks/base',
 		'mocks/persistence',
 		'passio/core',
+		'passio/encryption',
 	], function (_, chai, sinon, angular, pbkdf2) {
 		var assert = chai.assert;
 
@@ -42,16 +43,10 @@
 					var encryptionService, initDeferred;
 
 					encryptionService = new EncryptionService({
-						password: password
+						password: password,
+						authIterations: 2,
+						pbkdf2WorkerPath: 'base/scripts/passio/pbkdf2-worker.js'
 					});
-
-					encryptionService.secretKey = pbkdf2(password, "salt", { keySize: 256 / 32 });
-					encryptionService.signingKey = pbkdf2(password, "sugar", { keySize: 256 / 32 });
-
-					initDeferred = $q.defer();
-					initDeferred.resolve();
-					sinon.stub(encryptionService, 'init')
-						.returns(initDeferred.promise);
 
 					return encryptionService;
 				};
@@ -152,7 +147,7 @@
 					passwordService = createPasswordService('existing_user', 'another_password');
 					passwordService.getPersistenceService().store(
 						'existing_user',
-						'{"ct":"E8Kje6dIylknyZOW7gp2yMtWEiMjAsOHLAibcFBT8dKf9Fd5Wl8hoawzr09agAhrFZax0om4WRi2zF8lOX+5Lw==","iv":"OnPVHqc8RHHwoBY7lgXLhw=="}'
+						'{"ct":"xu3xOMHt222Dfq964D1iIzZgv5jsmJHc/65edr1SqGO6bX2gAefAqbEaO331rldqN2mDPfAdsxUWEgoCNv+J3Q==","iv":"NM15hmtroqkZ7jeRGuTV6A=="}'
 					).then(function () {
 						persistenceServiceSpy = createPersistenceServiceSpy(passwordService);
 						return passwordService.init();

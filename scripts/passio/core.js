@@ -153,11 +153,12 @@
 							return this.getPersistenceService().retrieve(this.username);
 						}.bind(this)).then(function (data) {
 							this.encryptedData = data;
-							this.data = this.getEncryptionService().decrypt(data);
-
-							// Older accounts don't have a undo and redo history.
-							this.data.undoHistory = this.data.undoHistory || [];
-							this.data.redoHistory = this.data.redoHistory || [];
+							return this.getEncryptionService().decrypt(data).then(function (data) {
+								this.data = data;
+								// Older accounts don't have a undo and redo history.
+								this.data.undoHistory = this.data.undoHistory || [];
+								this.data.redoHistory = this.data.redoHistory || [];
+							}.bind(this));
 						}.bind(this), function (e) {
 							if (e.status === 404) {
 								this.data = {
@@ -564,15 +565,16 @@
 							return p.id;
 						});
 
-						cipher = this.getEncryptionService().encrypt(data);
-						return this.getPersistenceService().store(this.username, cipher).then(function () {
-							this.encryptedData = cipher;
+						return this.getEncryptionService().encrypt(data).then(function (cipher) {
+							return this.getPersistenceService().store(this.username, cipher).then(function () {
+								this.encryptedData = cipher;
 
-							_.chain(this.data.passwords).filter(function (p) {
-								return _.contains(ids, p.id);
-							}).each(function (p) {
-								delete p.volatile;
-							});
+								_.chain(this.data.passwords).filter(function (p) {
+									return _.contains(ids, p.id);
+								}).each(function (p) {
+									delete p.volatile;
+								});
+							}.bind(this));
 						}.bind(this));
 					},
 
