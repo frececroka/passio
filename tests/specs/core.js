@@ -140,64 +140,76 @@
 				});
 			});
 
-			describe('loading an existing user', function () {
-				var passwordService, persistenceServiceSpy;
+			[{
+				name: 'lowercase username',
+				username: 'existing_user'
+			}, {
+				name: 'mixed case username',
+				username: 'Existing_User'
+			}].forEach(function (params) {
+				describe('loading an existing user (' + params.name + ')', function () {
+					var passwordService, persistenceServiceSpy;
 
-				beforeEach(function (done) {
-					passwordService = createPasswordService('existing_user', 'another_password');
-					passwordService.getPersistenceService().store(
-						'existing_user',
-						'{"ct":"xu3xOMHt222Dfq964D1iIzZgv5jsmJHc/65edr1SqGO6bX2gAefAqbEaO331rldqN2mDPfAdsxUWEgoCNv+J3Q==","iv":"NM15hmtroqkZ7jeRGuTV6A=="}'
-					).then(function () {
-						persistenceServiceSpy = createPersistenceServiceSpy(passwordService);
-						return passwordService.init();
-					}).then(done, done);
-				});
-
-				it('should just fetch the existing data for an existing user', function () {
-					assert.strictEqual(
-						1, persistenceServiceSpy.retrieve.callCount,
-						'persistenceService.retrieve() was called one time'
-					);
-				});
-
-				it('should not try to create an existing user', function () {
-					assert.strictEqual(
-						0, persistenceServiceSpy.store.callCount,
-						'persistenceService.store() was not called'
-					);
-				});
-
-				it('should return the correct data when calling get', function () {
-					assert.lengthOf(
-						passwordService.get(), 0,
-						'passwordService.get() returns the correct data.'
-					);
-				});
-
-				it('should fail if the wrong password is used', function (done) {
-					var passwordServiceOne, passwordServiceTwo;
-
-					passwordServiceOne = createPasswordService('some_user', 'password');
-					passwordServiceOne.init().then(function () {
-						return passwordServiceOne.put({
-							description: 'CodingBat',
-							url: 'http://codingbat.com/',
-							username: 'some_user'
-						});
-					}).then(function () {
-						passwordServiceTwo = createPasswordService('some_user', 'wrong_password');
-						passwordServiceTwo.setPersistenceService(passwordServiceOne.getPersistenceService());
-						return passwordServiceTwo.init();
-					}).then(function () {
-						assert.fail('The initialization with a wrong password fails.');
-					}, function () {
-						done();
+					beforeEach(function (done) {
+						passwordService = createPasswordService(params.username, 'another_password');
+						passwordService.getPersistenceService().store(
+							'existing_user',
+							'{"ct":"nTpmU9AFmF2fyFYPjyfUxZ6p4QOhwi2sGqx+P8n3wagX+iEyijX64NcKSu9bYziXItvJYNLT7sI79SGqwqrBK0IwzytSOAJJv9j7TJ6GO7AELq6HVqzsl4GZ75LdLQ5mB6z9g18Ft2Tn/z2HDXLY2fwmVZFa3TaodaGRdq1EUnmXnvVGM2+zwDfnNX3yioK9ClpL8rSO5K+Ya/DugDGVgLPSUCmQjXvBVe2RdBix5jRYaMN9Rq112nWnaRUxTs1q","iv":"wLuNfRLqK4/AmDBJzFyqtg=="}'
+						).then(function () {
+							persistenceServiceSpy = createPersistenceServiceSpy(passwordService);
+							return passwordService.init();
+						}).then(done, done);
 					});
-				});
 
-				afterEach(function () {
-					PasswordService.clearInstances();
+					it('should just fetch the existing data for an existing user', function () {
+						assert.strictEqual(
+							1, persistenceServiceSpy.retrieve.callCount,
+							'persistenceService.retrieve() was called one time'
+						);
+					});
+
+					it('should not try to create an existing user', function () {
+						assert.strictEqual(
+							0, persistenceServiceSpy.store.callCount,
+							'persistenceService.store() was not called'
+						);
+					});
+
+					it('should return the correct data when calling get', function () {
+						assert.lengthOf(
+							passwordService.get(), 1,
+							'passwordService.get() returns the correct data.'
+						);
+					});
+
+					it('should be able to load the instance via PasswordService.getInstance', function () {
+						assert.ok(PasswordService.getInstance(params.username));
+					});
+
+					it('should fail if the wrong password is used', function (done) {
+						var passwordServiceOne, passwordServiceTwo;
+
+						passwordServiceOne = createPasswordService('some_user', 'password');
+						passwordServiceOne.init().then(function () {
+							return passwordServiceOne.put({
+								description: 'CodingBat',
+								url: 'http://codingbat.com/',
+								username: 'some_user'
+							});
+						}).then(function () {
+							passwordServiceTwo = createPasswordService('some_user', 'wrong_password');
+							passwordServiceTwo.setPersistenceService(passwordServiceOne.getPersistenceService());
+							return passwordServiceTwo.init();
+						}).then(function () {
+							assert.fail('The initialization with a wrong password fails.');
+						}, function () {
+							done();
+						});
+					});
+
+					afterEach(function () {
+						PasswordService.clearInstances();
+					});
 				});
 			});
 

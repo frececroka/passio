@@ -24,7 +24,14 @@
 					return '';
 				}
 
-				var mostRecent = localStorage.getItem('UsernameHistoryService.mostRecent');
+				var mostRecent;
+				try {
+					mostRecent = localStorage.getItem('UsernameHistoryService.mostRecent');
+				} catch (e) {
+					// https://bugzilla.mozilla.org/show_bug.cgi?id=853234
+					// We can safely ignore this, as this feature is nothing we really need.
+				}
+
 				return mostRecent ? mostRecent : '';
 			}
 
