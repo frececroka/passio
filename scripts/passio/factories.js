@@ -17,11 +17,12 @@
 		]);
 
 		passioFactories.factory('PasswordServiceFactory', [
+			'$q',
 			'PasswordService',
 			'RestService',
 			'EncryptionService',
 			'config',
-			function (PasswordService, RestService, EncryptionService, config) {
+			function ($q, PasswordService, RestService, EncryptionService, config) {
 				return {
 					/**
 					 * Creates a new password service using the given username and password.
@@ -33,12 +34,18 @@
 					 *     initialized.
 					 */
 					create: function (username, password) {
-						var encryptionService, persistenceService, passwordService;
+						var deferred, encryptionService, persistenceService, passwordService;
 
-						encryptionService = new EncryptionService({
-							password: password,
-							authIterations: config.authIterations
-						});
+						try {
+							encryptionService = new EncryptionService({
+								password: password,
+								authIterations: config.authIterations
+							});
+						} catch (e) {
+							deferred = $q.defer();
+							deferred.reject('Cannot create EncryptionService: ' + e.message);
+							return deferred.promise;
+						}
 
 						persistenceService = new RestService({
 							backendUrl: config.backendUrl,
