@@ -25,7 +25,7 @@
 				 * @param {Object} options.persistenceService  The persistence service to use.
 				 */
 				var PasswordService = function (options) {
-					this.username = options.username.toLowerCase();
+					this.username = options.username;
 
 					this.setEncryptionService(options.encryptionService);
 					this.setPersistenceService(options.persistenceService);
@@ -35,7 +35,7 @@
 
 				PasswordService.instances = {};
 				PasswordService.getInstance = function (username) {
-					return PasswordService.instances[username.toLowerCase()];
+					return PasswordService.instances[username];
 				};
 
 				PasswordService.clearInstances = function () {

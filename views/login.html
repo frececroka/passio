@@ -5,12 +5,12 @@
 
 	<p>
 		<label for="username">Username</label>
-		<input type="text" id="username" class="form-control" data-ng-model="user.name" autofocus />
+		<input type="text" id="username" class="form-control" data-ng-model="user.name" data-focus-if="!autousername" />
 	</p>
 
 	<p>
 		<label for="password">Password</label>
-		<input type="password" id="password" class="form-control" data-ng-model="user.password" />
+		<input type="password" id="password" class="form-control" data-ng-model="user.password" data-focus-if="autousername" />
 	</p>
 
 	<button type="submit" class="btn btn-primary btn-block" data-ng-show="!loginInProgress">Login</button>

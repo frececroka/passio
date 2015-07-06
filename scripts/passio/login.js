@@ -54,6 +54,22 @@
 			}
 		]);
 
+		login.directive('focusIf', [
+			function () {
+				return {
+					restrict: 'A',
+					link: function ($scope, $element) {
+						$scope.$watch('focusIf', function (shouldFocus) {
+							if (shouldFocus) $element.focus()
+						});
+					},
+					scope: {
+						focusIf: '='
+					}
+				}
+			}
+		]);
+
 		login.controller('LoginController', [
 			'$scope',
 			'$location',
@@ -66,6 +82,8 @@
 					name: UsernameHistoryService.getMostRecent(),
 					password: ''
 				};
+
+				$scope.autousername = !!$scope.user.name;
 
 				$scope.statusValues = PassioStatus;
 
