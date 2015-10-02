@@ -50,6 +50,7 @@ module.exports = function(grunt) {
 					{ src: ['bower_components/cryptojs/components/enc-base64.js'], dest: 'dist/scripts/vendor/crypto/base64.js' },
 					{ src: ['bower_components/cryptojs/components/evpkdf.js'], dest: 'dist/scripts/vendor/crypto/evpkdf.js' },
 					{ src: ['bower_components/cryptojs/components/md5.js'], dest: 'dist/scripts/vendor/crypto/md5.js' },
+					{ src: ['bower_components/bootstrap/js/tooltip.js'], dest: 'dist/scripts/vendor/bootstrap/tooltip.js' },
 					{ src: ['bower_components/bootstrap/dist/fonts/glyphicons-halflings-regular.woff'], dest: 'dist/fonts/glyphicons-halflings-regular.woff' },
 					{ src: ['bower_components/mocha/mocha.js'], dest: 'dist/scripts/vendor/mocha.js' },
 					{ src: ['bower_components/chai/chai.js'], dest: 'dist/scripts/vendor/chai.js' },

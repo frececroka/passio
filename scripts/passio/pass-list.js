@@ -4,7 +4,8 @@
 	define([
 		'underscore',
 		'angular',
-		'passio/core'
+		'passio/core',
+		'bootstrap/tooltip'
 	], function (_, angular) {
 
 		var passList = angular.module('passio.passList', ['passio.core']);
@@ -107,6 +108,52 @@
 					scope: {
 						match: '=',
 						text: '='
+					}
+				};
+			}
+		]);
+
+		passList.directive('copyablePassword', [
+			function () {
+				var doCopy = function (passwordValue) {
+					if (!document.createRange || !window.getSelection || !document.execCommand) return false;
+
+					var range = document.createRange();
+					range.selectNodeContents(passwordValue[0].childNodes[0]);
+					window.getSelection().addRange(range);
+
+					return document.execCommand('copy');
+				};
+
+				var link = function (scope, element, attrs) {
+					var passwordWrapper = element.find('.password-wrapper');
+					passwordWrapper.tooltip({
+						title: 'Copy',
+						placement: 'right'
+					});
+
+					var passwordValue = passwordWrapper.find('.password-value');
+
+					var copyPassword = function () {
+						passwordWrapper
+							.attr('title', doCopy(passwordValue) ? 'Copied' : 'Not copied')
+							.tooltip('fixTitle')
+							.tooltip('show')
+							.attr('title', 'Copy')
+							.tooltip('fixTitle');
+					};
+
+					element.on('click', copyPassword);
+					element.on('$destroy', function () {
+						element.off('click', copyPassword);
+					});
+				};
+
+				return {
+					templateUrl: 'views/copyable-password.html',
+					link: link,
+					scope: {
+						password: '=copyablePassword'
 					}
 				};
 			}

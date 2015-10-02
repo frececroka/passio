@@ -5,6 +5,7 @@ requirejs.config({
 		'angular': 'vendor/angular',
 		'angular-route': 'vendor/angular-route',
 		'jquery': 'vendor/jquery',
+		'bootstrap/tooltip': 'vendor/bootstrap/tooltip',
 		'crypto': 'vendor/crypto',
 		'chai': 'vendor/chai',
 		'sinon': 'vendor/sinon',
@@ -25,6 +26,10 @@ requirejs.config({
 		'angular-route': {
 			exports: null,
 			deps: ['angular']
+		},
+		'bootstrap/tooltip': {
+			exports: null,
+			deps: ['jquery']
 		},
 		'crypto': {
 			exports: 'CryptoJS'

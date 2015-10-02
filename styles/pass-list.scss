@@ -62,6 +62,12 @@
 	}
 }
 
+.copyable-password {
+	.password-wrapper {
+		cursor: pointer;
+	}
+}
+
 .password-list-footer {
 	.show-hide-button {
 		float: left;
@@ -98,7 +104,7 @@
 .password-wrapper {
 	background-color: #000;
 
-	.password {
+	.password-value {
 		opacity: 0;
 	}
 }
