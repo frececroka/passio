@@ -53,6 +53,9 @@
   .password-list tr.deleted {
     text-decoration: line-through; }
 
+.copyable-password .password-wrapper {
+  cursor: pointer; }
+
 .password-list-footer .show-hide-button {
   float: left; }
   @media (max-width: 360px) {
@@ -74,7 +77,7 @@
 
 .password-wrapper {
   background-color: #000; }
-  .password-wrapper .password {
+  .password-wrapper .password-value {
     opacity: 0; }
 
 .password-box .text {

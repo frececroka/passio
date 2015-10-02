@@ -39,10 +39,8 @@
 					<input type="text" class="form-control" placeholder="Username" data-ng-model="password.username" data-ng-show="password.id === edit.id" />
 				</td>
 				<td>
-					<span class="password-wrapper" data-ng-show="password.id !== edit.id">
-						<span class="password">{{password.password}}</span>
-					</span>
-					<input type="password" class="form-control" placeholder="Password" data-ng-model="password.password" data-ng-show="password.id === edit.id" />
+					<div class="copyable-password" copyable-password="password.password" ng-show="password.id !== edit.id" />
+					<input type="password" class="form-control" placeholder="Password" ng-model="password" ng-show="password.id === edit.id" />
 				</td>
 				<td class="actions">
 					<button type="button" class="btn btn-warning" data-ng-click="edit.id = password.id" data-ng-show="password.id !== edit.id">
@@ -87,15 +85,8 @@
 					</div>
 
 					<div class="col-sm-4 text">
-						<span class="password-wrapper" data-ng-show="password.id !== edit.id">
-							<span class="password">{{password.password}}</span>
-						</span>
-
-						<input type="password"
-							class="form-control"
-							placeholder="Password"
-							data-ng-model="password.password"
-							data-ng-show="password.id === edit.id" />
+						<div class="copyable-password" copyable-password="password.password" ng-show="password.id !== edit.id" />
+						<input type="password" class="form-control" placeholder="Password" ng-model="password" ng-show="password.id === edit.id" />
 					</div>
 
 					<div class="col-xs-6 col-sm-2 action">
