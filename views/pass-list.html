@@ -40,7 +40,7 @@
 				</td>
 				<td>
 					<div class="copyable-password" copyable-password="password.password" ng-show="password.id !== edit.id" />
-					<input type="password" class="form-control" placeholder="Password" ng-model="password.password" ng-show="password.id === edit.id" />
+					<input type="password" class="form-control" placeholder="Password" ng-model="password" ng-show="password.id === edit.id" />
 				</td>
 				<td class="actions">
 					<button type="button" class="btn btn-warning" data-ng-click="edit.id = password.id" data-ng-show="password.id !== edit.id">
@@ -86,7 +86,7 @@
 
 					<div class="col-sm-4 text">
 						<div class="copyable-password" copyable-password="password.password" ng-show="password.id !== edit.id" />
-						<input type="password" class="form-control" placeholder="Password" ng-model="password.password" ng-show="password.id === edit.id" />
+						<input type="password" class="form-control" placeholder="Password" ng-model="password" ng-show="password.id === edit.id" />
 					</div>
 
 					<div class="col-xs-6 col-sm-2 action">
