@@ -122,7 +122,12 @@
 					range.selectNodeContents(passwordValue[0].childNodes[0]);
 					window.getSelection().addRange(range);
 
-					return document.execCommand('copy');
+					try {
+						return document.execCommand('copy');
+					} catch (e) {
+						console.error(e);
+						return false;
+					}
 				};
 
 				var link = function (scope, element, attrs) {
