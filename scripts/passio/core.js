@@ -4,8 +4,9 @@
 	define([
 		'underscore',
 		'angular',
+		'fuse',
 		'passio/utils'
-	], function (_, angular) {
+	], function (_, angular, Fuse) {
 
 		var core = angular.module('passio.core', [
 			'passio.utils'
@@ -43,6 +44,7 @@
 				};
 
 				PasswordService.prototype = {
+
 					/**
 					 * A list of properties of individual entries that can be passed on to the persistence
 					 * layer. Some internal properties are not suited for persistence, for example the
@@ -51,6 +53,15 @@
 					 * @type {Array}
 					 */
 					persistableProperties: ['id', 'description', 'url', 'username', 'password'],
+
+					/**
+					 * A list of properties of individual entries whose content is used to build the search
+					 * index. This list excludes the 'id' and 'password' properties, because a user most
+					 * likely does not want to search for the content of these fields.
+					 *
+					 * @type {Array}
+					 */
+					searchableProperties: ['description', 'url', 'username'],
 
 					/**
 					 * The implementation of the encryption service to use. The default implementation resides
@@ -155,6 +166,8 @@
 							this.encryptedData = data;
 							return this.getEncryptionService().decrypt(data).then(function (data) {
 								this.data = data;
+								this.updateFuseIndex();
+
 								// Older accounts don't have a undo and redo history.
 								this.data.undoHistory = this.data.undoHistory || [];
 								this.data.redoHistory = this.data.redoHistory || [];
@@ -167,6 +180,8 @@
 									undoHistory: [],
 									redoHistory: []
 								};
+
+								this.updateFuseIndex();
 
 								return this.getPersistenceService().create(this.username).then(function () {
 									return this.updateUpstream();
@@ -253,6 +268,7 @@
 						}
 
 						this.data.passwords.push(entry);
+						this.updateFuseIndex();
 
 						this.addHistory({
 							action: 'create',
@@ -294,6 +310,8 @@
 							}
 						}.bind(this));
 
+						this.updateFuseIndex();
+
 						this.addHistory(historyEntry, options.historyTarget, { keepRedo: options.keepRedo });
 					},
 
@@ -333,43 +351,11 @@
 					},
 
 					getBySearch: function (q) {
-						var rank, properties, entries;
-
 						if (!q) {
 							return [];
 						}
 
-						rank = function (entry, properties, q) {
-							entry.rank = 0;
-
-							_.chain(properties).reject(function (p) {
-								return p === 'password';
-							}).each(function (p) {
-								var currentMatch = utils.fuzzyMatch(entry[p], q);
-
-								entry['$' + p] = currentMatch.slices;
-
-								if (currentMatch.rank > 0) {
-									if (entry.rank > 0) {
-										entry.rank = Math.min(currentMatch.rank, entry.rank);
-									} else {
-										entry.rank = currentMatch.rank;
-									}
-								}
-							});
-
-							return entry;
-						};
-
-						properties = this.persistableProperties;
-						entries = this.get();
-						return _.chain(entries).map(function (e) {
-							return rank(e, properties, q);
-						}).filter(function (e) {
-							return e.rank > 0;
-						}).sortBy(function (e) {
-							return e.rank;
-						}).value();
+						return this.fuseIndex.search(q);
 					},
 
 					/**
@@ -409,6 +395,7 @@
 							}
 						}.bind(this));
 
+						this.updateFuseIndex();
 						return this.updateUpstream();
 					},
 
@@ -520,7 +507,8 @@
 					 *     saved.
 					 */
 					undo: function () {
-						if (this.canUndo()) return this.revert(this.data.undoHistory.pop(), {
+						if (!this.canUndo()) return $q.when();
+						return this.revert(this.data.undoHistory.pop(), {
 							historyTarget: this.data.redoHistory
 						});
 					},
@@ -542,8 +530,15 @@
 					 *     saved.
 					 */
 					redo: function () {
-						if (this.canRedo()) return this.revert(this.data.redoHistory.pop(), {
+						if (!this.canRedo()) return $q.when();
+						return this.revert(this.data.redoHistory.pop(), {
 							historyTarget: this.data.undoHistory
+						});
+					},
+
+					updateFuseIndex: function () {
+						this.fuseIndex = new Fuse(this.data.passwords, {
+							keys: this.searchableProperties
 						});
 					},
 
@@ -554,7 +549,7 @@
 					 *     is rejected when the update failed.
 					 */
 					updateUpstream: function () {
-						var data, ids, cipher;
+						var data, ids;
 
 						data = _.clone(this.data);
 						data.passwords = _.map(data.passwords, function (e) {

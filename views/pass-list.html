@@ -25,17 +25,17 @@
 			<tr data-ng-repeat="password in passwords"
 				data-ng-class="{ volatile: password.volatile, deleted: password.deleted }">
 				<td data-ng-click="edit.id = password.id">
-					<span data-ng-show="password.id !== edit.id" matched-text match="password.$description" text="password.description"></span>
+					<span data-ng-show="password.id !== edit.id">{{ password.description }}</span>
 					<input type="text" class="form-control" placeholder="Description" data-ng-model="password.description" data-ng-show="password.id === edit.id" />
 				</td>
 				<td>
 					<span data-ng-show="password.id !== edit.id">
-						<a href="{{password.url}}" matched-text match="password.$url" text="password.url"></a>
+						<a href="{{password.url}}">{{ password.url }}</a>
 					</span>
 					<input type="text" class="form-control" placeholder="URL" data-ng-model="password.url" data-ng-show="password.id === edit.id" />
 				</td>
 				<td>
-					<span data-ng-show="password.id !== edit.id" matched-text match="password.$username" text="password.username"></span>
+					<span data-ng-show="password.id !== edit.id">{{ password.username }}</span>
 					<input type="text" class="form-control" placeholder="Username" data-ng-model="password.username" data-ng-show="password.id === edit.id" />
 				</td>
 				<td>
