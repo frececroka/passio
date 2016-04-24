@@ -7,6 +7,7 @@ requirejs.config({
 		'jquery': 'vendor/jquery',
 		'bootstrap/tooltip': 'vendor/bootstrap/tooltip',
 		'crypto': 'vendor/crypto',
+		'fuse': 'vendor/fuse',
 		'chai': 'vendor/chai',
 		'sinon': 'vendor/sinon',
 		'mocha': 'vendor/mocha',
