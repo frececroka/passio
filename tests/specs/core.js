@@ -685,15 +685,14 @@
 					);
 				});
 
-				it.skip('should perform fuzzy-matching', function () {
-					console.log(passwordService.getBySearch('raymatti'));
+				it('should perform fuzzy-matching', function () {
 					assert.lengthOf(
 						passwordService.getBySearch('raymatti'), 1,
 						'Searching for "raymatti" returns the entry with the username "raymond_mattingly"'
 					);
 				});
 
-				it.skip('should write the matching slices on the entries', function () {
+				it('should write the matching slices on the entries', function () {
 					var searchResult = passwordService.getBySearch('raymatt');
 
 					assert.deepEqual(
