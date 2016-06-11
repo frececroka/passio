@@ -100,10 +100,11 @@ p.code {
   background-color: #DDD;
   color: #333;
   font-family: monospace;
+  font-size: 0.7em;
   margin-top: 10px;
   padding: 10px;
   border-radius: 5px;
-  word-wrap: break-word; }
+  word-break: break-all; }
 
 html {
   height: 100%; }
