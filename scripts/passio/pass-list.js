@@ -120,7 +120,10 @@
 
 					var range = document.createRange();
 					range.selectNodeContents(passwordValue[0].childNodes[0]);
-					window.getSelection().addRange(range);
+
+					var sel = window.getSelection();
+					sel.removeAllRanges();
+					sel.addRange(range);
 
 					try {
 						return document.execCommand('copy');
