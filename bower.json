@@ -14,7 +14,7 @@
     "angular": "^1.2.14",
     "angular-route": "^1.2.14",
     "underscore": "^1.6.0",
-    "cryptojs": "https://crypto-js.googlecode.com/files/CryptoJS%20v3.1.2.zip",
+    "cryptojs": "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/crypto-js/CryptoJS%20v3.1.2.zip",
     "requirejs-text": "^2.0.10"
   },
   "devDependencies": {
