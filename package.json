@@ -1,6 +1,6 @@
 {
   "name": "passio",
-  "version": "0.10.0",
+  "version": "13.1.0",
   "description": "A client-side password manager.",
   "main": "dist/index.html",
   "author": "Lorenz Gorse",
